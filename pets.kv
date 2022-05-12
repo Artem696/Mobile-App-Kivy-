@@ -693,34 +693,7 @@ WindowManager:
         on_release: 
             app.root.current = "start"
             app.root.transition.direction = "right"
-<Ad_lost_card>:
-    size_hint_y: None
-    height: 200
-    size_hint_x: None
-    width: 500
-    pos_hint: {'center_x': .5, 'center_y': .5}
-    Image:
-        id: card_image
-        source: 'Image\\cat.jpg'
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint: 1,0.5
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        Label:
-            color: 0,0,0,1
-            font_size: '15sp'
-            text: 'Дата/Время'
-        MapView:
-            lat:55.818
-            lon:37.3317
-            zoom:10
-            pos_hint: {'x': 0, 'y': 0}
-            size_hint: 1, 1
-            map_source: "osm"
-            MapMarkerPopup:
-                source: 'Image\\marker.png'
-                lat:55.818
-                lon:37.3317
+
 <Ad_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -744,44 +717,113 @@ WindowManager:
                 app.root.current = "main"
                 app.root.transition.direction = "right"
     ScrollView:
+        id: scc
         do_scroll_x: False
-        do_scroll_y: True
         bar_color: [0, 0, 0, 1]
-        MDBoxLayout:
-            orientation: "vertical"
-            adaptive_height: True
-            spacing:dp(25)
-            MDFloatLayout:
-                size_hint_y: None
-                #height: 200
-                size_hint_x: None
-                #width: 500
-                pos_hint: {'center_x': .5, 'center_y': .5}
-                Image:
-                    id: card_image
-                    source: 'Image\\cat.jpg'
-                BoxLayout:
-                    orientation: 'vertical'
-                    size_hint: 1,0.5
-                    pos_hint: {'center_x': .5, 'center_y': .5}
-                    Label:
-                        color: 0,0,0,1
-                        font_size: '15sp'
-                        text: 'Дата/Время'
-                    MapView:
-                        lat:55.818
-                        lon:37.3317
-                        zoom:10
-                        pos_hint: {'x': 0, 'y': 0}
-                        size_hint: 1, 1
-                        map_source: "osm"
-                        MapMarkerPopup:
-                            source: 'Image\\marker.png'
-                            lat:55.818
-                            lon:37.3317
+        size_hint: 1, 0.95
+        #height: 1000
+
+        # MDBoxLayout:
+        #     #orientation: "vertical"
+        #     adaptive_height: True
+        #     spacing:dp(25)
+
+        FloatLayout:
+            size_hint: 1, None
+            #adaptive_height: True
+            height:1000
+            #pos_hint: {'center_x': .5, 'center_y': .5}
+            Image:
+                id: card_image
+                source: 'Image\\cat.jpg'
+                size_hint: 0.6, None
+                height: 150
+                pos_hint: {'x':0.2,'y':0.85}
+            Label:
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Видели тут'
+                size_hint: None, None
+                pos_hint: {'x':0.05,'y':0.77}
+            MapView:
+                lat:55.818
+                lon:37.3317
+                zoom:10
+                pos_hint: {'x': 0.1, 'y': 0.48}
+                size_hint: 0.8, None
+                height: 300
+                map_source: "osm"
+                MapMarkerPopup:
+                    source: 'Image\\marker.png'
+                    lat:55.818
+                    lon:37.3317
+            Image:
+                source: 'Image\\pet.png'
+                size_hint: None, None
+                height: 32
+                width: 32
+                pos_hint: {'x': 0.05, 'y': 0.4}
+            Label:
+                id: ad_type_pet
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Собака'
+                size_hint: None, None
+                pos_hint: {'x':0.1,'y':0.37}
+            Image:
+                source: 'Image\\gender.png'
+                size_hint: None, None
+                height: 32
+                width: 32
+                pos_hint: {'x': 0.05, 'y':0.35}
+            Label:
+                id: ad_gender_pet
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Мальчик'
+                size_hint: None, None
+                pos_hint: {'x':0.11,'y':0.32}
+            Label:
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Комментарий:'
+                size_hint: None, None
+                pos_hint: {'x':0.06,'y':0.27}
+            Label:
+                color: 0,0,0,1
+                font_size: '15sp'
+                text: 'Комментарий:'
+                size_hint: None, None
+                pos_hint: {'x':0.45,'y':0.17}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца.\nБыл утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал.\nКобель американского стафордширского терьера. Зовут Дин.\nОшейник красного цвета и адресник с номером телефона хозяина.\nПожалуйста кто-то что-то видел или слышал сообщите.\nБудем благодарны за любую информацию'
+            Label:
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Контактные данные'
+                size_hint: None, None
+                pos_hint: {'x':0.4,'y':0.08}
+            Label:
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Name'
+                size_hint: None, None
+                pos_hint: {'x':0.35,'y':0.05}
+            Label:
+                color: 0,0,0,1
+                font_size: '17sp'
+                text: 'Телефон'
+                size_hint: None, None
+                pos_hint: {'x':0.45,'y':0.05}
+            MDRectangleFlatIconButton:
+                icon: "comment-outline"
+                text: "Открыть комментарии"
+                theme_text_color: "Custom"
+                text_color: 0, 0, 1, 1
+                line_color: 0, 0, 1, 1
+                theme_icon_color: "Custom"
+                icon_color: 0, 0, 0, 1
+                pos_hint: {'x':0.35,'y':0}
 
 
-
-                
 
     

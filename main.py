@@ -38,8 +38,6 @@ class WindowManager(ScreenManager):
 
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
      pass
-class Ad_lost_card(RoundedRectangularElevationBehavior,MDCard):
-     pass
 class Tab(MDFloatLayout, MDTabsBase):
      pass
 class Lost_list(Tab):
