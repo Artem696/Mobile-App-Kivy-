@@ -32,11 +32,19 @@ class Lost_Filter(Screen):
      pass
 class Ad_Screen(Screen):
      pass
+class Service_List_Screen(Screen):
+     pass
+class Service_Screen(Screen):
+     pass
+class Profile_Screen(Screen):
+     pass
 class WindowManager(ScreenManager):
      pass
 
 
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
+class Service_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Tab(MDFloatLayout, MDTabsBase):
      pass
@@ -81,6 +89,12 @@ class PetsApp(MDApp):
                               self.root.get_screen('main').ids[f'nav_icon{i+1}'].text_color = 0.34,0.71,0.98,1
                          else:
                               self.root.get_screen('main').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
+               if 'nav_icon2' == current_id:
+                    for i in range(5):
+                         if f'nav_icon{i+1}' == current_id:
+                              self.root.get_screen('service_list').ids[f'nav_icon{i+1}'].text_color = 0.34,0.71,0.98,1
+                         else:
+                              self.root.get_screen('service_list').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
                if 'nav_icon4' == current_id:
                     for i in range(5):
                          if f'nav_icon{i+1}' == current_id:
@@ -90,9 +104,10 @@ class PetsApp(MDApp):
                if 'nav_icon5' == current_id:
                     for i in range(5):
                          if f'nav_icon{i+1}' == current_id:
-                              self.root.get_screen('profile_noreg').ids[f'nav_icon{i+1}'].text_color = 0.34,0.71,0.98,1
+                              self.root.get_screen('profile').ids[f'nav_icon{i+1}'].text_color = 0.34,0.71,0.98,1
                          else:
-                              self.root.get_screen('profile_noreg').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
+                              self.root.get_screen('profile').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
+                    
 
      def transition_notif(self):
           log_in_user = False
@@ -100,20 +115,30 @@ class PetsApp(MDApp):
                #self.root.transition = NoTransition()
                self.root.current = 'notif_noreg'
      def transition_profile(self):
-          log_in_user = False
+          log_in_user = True
           if log_in_user == False:
                #self.root.transition = NoTransition()
                self.root.current = 'profile_noreg'
+          else:
+               self.root.current = 'profile'
      def add_cards_ads(self):
           for i in range(10):
                card = Lost_card()
                card.bind(on_press=self.display_ad)
-               self.root.ids.mainscreen.ids.lost_list.ids.container.add_widget(card)
+               self.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(card)
+     def add_cards_services(self):
+          for i in range(10):
+               card = Service_card()
+               card.bind(on_press=self.display_service)
+               self.root.ids.service_list_screen.ids.container_service.add_widget(card)
      def display_ad(self, *args, **kwargs):
           self.root.current = 'ad'
+     def display_service(self, *args, **kwargs):
+          self.root.current = 'service_list'
      def on_start(self, **kwargs):
           self.check_internet()
           self.add_cards_ads()
+          self.add_cards_services()
 #kv = Builder.load_file("pets.kv")
 if __name__ == '__main__':
      PetsApp().run()

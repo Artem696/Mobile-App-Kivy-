@@ -26,6 +26,15 @@ WindowManager:
     Ad_Screen:
         name: 'ad'
         id: ad_screen
+    Service_List_Screen:
+        name: 'service_list'
+        id: service_list_screen
+    Service_Screen:
+        name: 'service'
+        id: service_screen
+    Profile_Screen:
+        name: 'profile'
+        id: profile_screen
 <RoundedButton@Button>:
     background_color: 0,0,0,0
     canvas.before:
@@ -99,12 +108,11 @@ WindowManager:
     BoxLayout:
         orientation: "vertical"
         ScrollView:
-            id: scroll
             do_scroll_x: False
             do_scroll_y: True
             bar_color: [0, 0, 0, 1]
             MDBoxLayout:
-                id: container
+                id: container_lost
                 orientation: "vertical"
                 adaptive_height: True
                 spacing:dp(25)
@@ -158,6 +166,7 @@ WindowManager:
             user_font_size: dp(36)
             on_release:
                 app.root.current = 'lost_filter'
+                app.root.transition.direction = "left"
     RelativeLayout:
         size_hint: 1,0.88
         pos_hint: {'x':0,'y':0.07}
@@ -211,7 +220,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'main'
+                    app.root.current = 'service_list'
             MDIconButton:
                 id: nav_icon3
                 icon: 'plus-circle-outline'
@@ -438,7 +447,8 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = ''
+                    app.root.current = 'service_list'
+                    app.root.transition.direction = "right"
             MDIconButton:
                 id: nav_icon3
                 icon: 'plus-circle-outline'
@@ -471,7 +481,8 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'profile_noreg'
+                    app.root.transition.direction = "left"
+                    app.transition_profile()
 
 <Profile_NoReg>:
     FloatLayout:
@@ -542,7 +553,8 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = ''
+                    app.root.current = 'service_list'
+                    app.root.transition.direction = "right"
             MDIconButton:
                 id: nav_icon3
                 icon: 'plus-circle-outline'
@@ -576,7 +588,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'profile_noreg'
+                    app.transition_profile()
 <Lost_Filter>:
     FloatLayout:
         size_hint: 1,0.05
@@ -708,7 +720,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Фильтры'
+            text:'Потеряшка'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -721,18 +733,9 @@ WindowManager:
         do_scroll_x: False
         bar_color: [0, 0, 0, 1]
         size_hint: 1, 0.95
-        #height: 1000
-
-        # MDBoxLayout:
-        #     #orientation: "vertical"
-        #     adaptive_height: True
-        #     spacing:dp(25)
-
         FloatLayout:
             size_hint: 1, None
-            #adaptive_height: True
             height:1000
-            #pos_hint: {'center_x': .5, 'center_y': .5}
             Image:
                 id: card_image
                 source: 'Image\\cat.jpg'
@@ -769,7 +772,7 @@ WindowManager:
                 font_size: '17sp'
                 text: 'Собака'
                 size_hint: None, None
-                pos_hint: {'x':0.1,'y':0.37}
+                pos_hint: {'x':0.1,'y':0.365}
             Image:
                 source: 'Image\\gender.png'
                 size_hint: None, None
@@ -782,7 +785,7 @@ WindowManager:
                 font_size: '17sp'
                 text: 'Мальчик'
                 size_hint: None, None
-                pos_hint: {'x':0.11,'y':0.32}
+                pos_hint: {'x':0.11,'y':0.315}
             Label:
                 color: 0,0,0,1
                 font_size: '17sp'
@@ -792,7 +795,6 @@ WindowManager:
             Label:
                 color: 0,0,0,1
                 font_size: '15sp'
-                text: 'Комментарий:'
                 size_hint: None, None
                 pos_hint: {'x':0.45,'y':0.17}
                 text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца.\nБыл утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал.\nКобель американского стафордширского терьера. Зовут Дин.\nОшейник красного цвета и адресник с номером телефона хозяина.\nПожалуйста кто-то что-то видел или слышал сообщите.\nБудем благодарны за любую информацию'
@@ -807,22 +809,334 @@ WindowManager:
                 font_size: '17sp'
                 text: 'Name'
                 size_hint: None, None
-                pos_hint: {'x':0.35,'y':0.05}
+                pos_hint: {'x':0.3,'y':0.05}
             Label:
                 color: 0,0,0,1
                 font_size: '17sp'
                 text: 'Телефон'
                 size_hint: None, None
-                pos_hint: {'x':0.45,'y':0.05}
-            MDRectangleFlatIconButton:
+                pos_hint: {'x':0.49,'y':0.05}
+            MDFillRoundFlatIconButton:
                 icon: "comment-outline"
                 text: "Открыть комментарии"
                 theme_text_color: "Custom"
-                text_color: 0, 0, 1, 1
-                line_color: 0, 0, 1, 1
+                text_color: 1, 1, 1, 1
                 theme_icon_color: "Custom"
-                icon_color: 0, 0, 0, 1
-                pos_hint: {'x':0.35,'y':0}
+                icon_color: 1, 1, 1, 1
+                md_bg_color: 0.34,0.71,0.98,1
+                font_size: '17sp'
+                user_font_size: dp(36)
+                pos_hint: {'x':0.28,'y':0.03}
+<Service_card>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: 200
+    size_hint_x: None
+    width: 450
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    canvas:
+        Color:
+            rgba: (0,0,0,1)
+        Line:
+            rectangle: self.x, self.y, self.width, self.height
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: 0.5
+        Image:
+            id: card_image
+            size_hint: 0.8,0.8
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            source: 'Image\\service_card.png'
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 1,0.5
+            pos_hint: {'center_x': .2, 'center_y': .7}
+            Label:
+                id: name_service_card
+                color: 0,0,0,1
+                text_size: self.size
+                halign: 'left'
+                valign: 'bottom'
+                font_size: '15sp'
+                text: 'Name'
+            Label:
+                id: city_service_card
+                color: 0,0,0,1
+                text_size: self.size
+                halign: 'left'
+                valign: 'top'
+                font_size: '15sp'
+                text: 'Город'
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 1,0.2
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        canvas:
+            Color:
+                rgba: (0,0,0,0.4)
+            Line:
+                points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
+        Label:
+            id: price_service
+            color: 0,0,0,1
+            text_size: self.size
+            valign: "middle"
+            padding_x: 23
+            font_size: '15sp'
+            text: 'Стоимость'
+<Service_List_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Услуги'
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 1,0.95
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_color: [0, 0, 0, 1]
+            MDBoxLayout:
+                id: container_service
+                orientation: "vertical"
+                adaptive_height: True
+                spacing:dp(25)
+    NavigationBar:
+        size_hint: 1,0.07
+        pos_hint: {'x': 0, 'y': 0}
+        #elevation: 20
+        md_bg_color: 1,1,1,1
+        MDFloatLayout:
+            canvas:
+                Color:
+                    rgba: (0,0,0,0.5)
+                Line:
+                    points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
+            size_hint_x: 1
+            pos_hint: {'x': 0, 'y': 0}
+            MDIconButton:
+                id: nav_icon1
+                icon: 'paw'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.05, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0.34,0.71,0.98,1
+                on_release:
+                    #app.root.transition = NoTransition()
+                    app.change_color(self)
+                    app.root.current = 'main'
+                    app.root.transition.direction = "right"
+            MDIconButton:
+                id: nav_icon2
+                icon: 'clipboard-check-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.25, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.root.current = 'service_list'
+            MDIconButton:
+                id: nav_icon3
+                icon: 'plus-circle-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.45, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.root.current = ''
+            MDIconButton:
+                id: nav_icon4
+                icon: 'bell-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.65, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.root.current = 'notif_noreg'
+            MDIconButton:
+                id: nav_icon5
+                icon: 'account-circle-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.84, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.transition_profile()
+<Profile_Screen>:
+    FloatLayout:
+        size_hint: 1,0.93
+        pos_hint: {'x':0,'y':0.07}
+        canvas.before:
+            Color:
+                rgba: (1,0.71,0.98,1)
+            Rectangle:
+                pos: self.x, self.y + self.height*0.75
+                size: self.width, self.height*0.25 
+                source: 'Image\\image836.png'
+        Image:
+            source: 'Image\\profile2.png'
+            size_hint: 0.2,0.2
+            pos_hint: {'x':0.4,'y':0.65}
+        MDRectangleFlatButton:
+            text: 'Личные данные'
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
+            line_color: 0, 0, 0, 1
+            size_hint: 1,None
+            anchor_x: 'left'
+            padding: [dp(16),dp(0)]
+            font_size: '17sp'
+            pos_hint: {'x':0,'y':0.55}
+        MDRectangleFlatButton:
+            text: 'Мои объявления'
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
+            line_color: 0, 0, 0, 1
+            size_hint: 1,None
+            anchor_x: 'left'
+            padding: [dp(16),dp(0)]
+            font_size: '17sp'
+            pos_hint: {'x':0,'y':0.48}
+        MDRectangleFlatButton:
+            text: 'Мои услуги'
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
+            line_color: 0, 0, 0, 1
+            size_hint: 1,None
+            anchor_x: 'left'
+            padding: [dp(16),dp(0)]
+            font_size: '17sp'
+            pos_hint: {'x':0,'y':0.41}
+        MDRectangleFlatButton:
+            text: 'Выбранные услуги'
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
+            line_color: 0, 0, 0, 1
+            size_hint: 1,None
+            anchor_x: 'left'
+            padding: [dp(16),dp(0)]
+            font_size: '17sp'
+            pos_hint: {'x':0,'y':0.34}
+        MDRectangleFlatButton:
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
+            line_color: 0, 0, 0, 1
+            text: 'Выбранные объявления'
+            size_hint: 1,None
+            anchor_x: 'left'
+            padding: [dp(16),dp(0)]
+            font_size: '17sp'
+            pos_hint: {'x':0,'y':0.27}
+        MDRectangleFlatButton:
+            text: 'О приложении'
+            theme_text_color: 'Custom'
+            text_color: 0, 0, 0, 1
+            line_color: 0, 0, 0, 1
+            size_hint: 1,None
+            anchor_x: 'left'
+            padding: [dp(16),dp(0)]
+            font_size: '17sp'
+            pos_hint: {'x':0,'y':0.2}
+        MDRectangleFlatIconButton:
+            icon: "exit-to-app"
+            text: "Выйти из аккаунта"
+            theme_text_color: "Custom"
+            text_color: 0, 0, 0, 1
+            line_color: 1,1, 1, 1
+            theme_icon_color: "Custom"
+            icon_color: 0, 0, 0, 1
+            pos_hint: {'x':0.75,'y':0.01}
+    NavigationBar:
+        size_hint: 1,0.07
+        pos_hint: {'x': 0, 'y': 0}
+        #elevation: 20
+        md_bg_color: 1,1,1,1
+        MDFloatLayout:
+            canvas:
+                Color:
+                    rgba: (0,0,0,0.5)
+                Line:
+                    points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
+            size_hint_x: 1
+            pos_hint: {'x': 0, 'y': 0}
+            MDIconButton:
+                id: nav_icon1
+                icon: 'paw'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.05, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0.34,0.71,0.98,1
+                on_release:
+                    #app.root.transition = NoTransition()
+                    app.change_color(self)
+                    app.root.current = 'main'
+                    app.root.transition.direction = "right"
+            MDIconButton:
+                id: nav_icon2
+                icon: 'clipboard-check-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.25, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.root.current = 'service_list'
+                    app.root.transition.direction = "right"
+            MDIconButton:
+                id: nav_icon3
+                icon: 'plus-circle-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.45, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.root.current = ''
+            MDIconButton:
+                id: nav_icon4
+                icon: 'bell-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.65, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.root.current = 'notif_noreg'
+                    app.root.transition.direction = "right"
+            MDIconButton:
+                id: nav_icon5
+                icon: 'account-circle-outline'
+                ripple_scale: 0.8
+                pos_hint: {'x': 0.84, 'y': -0.1}
+                user_font_size: dp(48)
+                theme_text_color: 'Custom'
+                text_color: 0,0,0,1
+                on_release:
+                    app.change_color(self)
+                    app.transition_profile()
 
 
 
