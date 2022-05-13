@@ -11,6 +11,7 @@ from kivymd.uix.floatlayout import MDFloatLayout
 from kivymd.uix.tab import MDTabsBase
 from kivy.uix.widget import Widget
 from kivymd.uix.card import MDCard
+from kivy.properties import StringProperty
 import requests
 
 
@@ -38,6 +39,10 @@ class Service_Screen(Screen):
      pass
 class Profile_Screen(Screen):
      pass
+class Personal_Data(Screen):
+     change = StringProperty('Изменить пароль')
+class Change_Password_Screen(Screen):
+     change = StringProperty('Изменить')
 class WindowManager(ScreenManager):
      pass
 

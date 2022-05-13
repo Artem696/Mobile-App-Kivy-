@@ -35,6 +35,12 @@ WindowManager:
     Profile_Screen:
         name: 'profile'
         id: profile_screen
+    Personal_Data:
+        name: 'data_personal'
+        id: personal_data
+    Change_Password_Screen:
+        name: 'change_password'
+        id: change_password_Screen
 <RoundedButton@Button>:
     background_color: 0,0,0,0
     canvas.before:
@@ -993,9 +999,22 @@ WindowManager:
                 size: self.width, self.height*0.25 
                 source: 'Image\\image836.png'
         Image:
+            id: avatar
             source: 'Image\\profile2.png'
             size_hint: 0.2,0.2
             pos_hint: {'x':0.4,'y':0.65}
+        Label:
+            id: name_profile
+            pos_hint: {'x':-0.07,'y':0.15}
+            color: 0,0,0,1
+            font_size: '25sp'
+            text:'Name'
+        Label:
+            id: sname_profile
+            pos_hint: {'x':0.07,'y':0.15}
+            color: 0,0,0,1
+            font_size: '25sp'
+            text:'SName'
         MDRectangleFlatButton:
             text: 'Личные данные'
             theme_text_color: 'Custom'
@@ -1005,7 +1024,9 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.55}
+            pos_hint: {'x':0,'y':0.53}
+            on_release:
+                app.root.current = 'data_personal'
         MDRectangleFlatButton:
             text: 'Мои объявления'
             theme_text_color: 'Custom'
@@ -1015,7 +1036,7 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.48}
+            pos_hint: {'x':0,'y':0.46}
         MDRectangleFlatButton:
             text: 'Мои услуги'
             theme_text_color: 'Custom'
@@ -1025,7 +1046,7 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.41}
+            pos_hint: {'x':0,'y':0.39}
         MDRectangleFlatButton:
             text: 'Выбранные услуги'
             theme_text_color: 'Custom'
@@ -1035,7 +1056,7 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.34}
+            pos_hint: {'x':0,'y':0.32}
         MDRectangleFlatButton:
             theme_text_color: 'Custom'
             text_color: 0, 0, 0, 1
@@ -1045,7 +1066,7 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.27}
+            pos_hint: {'x':0,'y':0.25}
         MDRectangleFlatButton:
             text: 'О приложении'
             theme_text_color: 'Custom'
@@ -1055,16 +1076,16 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.2}
+            pos_hint: {'x':0,'y':0.18}
         MDRectangleFlatIconButton:
             icon: "exit-to-app"
             text: "Выйти из аккаунта"
             theme_text_color: "Custom"
             text_color: 0, 0, 0, 1
-            line_color: 1,1, 1, 1
+            line_color: 1, 1, 1, 1
             theme_icon_color: "Custom"
             icon_color: 0, 0, 0, 1
-            pos_hint: {'x':0.75,'y':0.01}
+            pos_hint: {'x':0.65,'y':0.01}
     NavigationBar:
         size_hint: 1,0.07
         pos_hint: {'x': 0, 'y': 0}
@@ -1137,6 +1158,149 @@ WindowManager:
                 on_release:
                     app.change_color(self)
                     app.transition_profile()
+<Change_Password_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Смена пароля'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "data_personal"
+                app.root.transition.direction = "right"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint_x: 0.9
+        pos_hint: {'x': 0.05, 'y': 0.6}
+        spacing: '12dp'
+        MDTextField:
+            id: passw_sign
+            hint_text: "Старый пароль"
+            mode: "rectangle"
+            password: True
+            password_mask: '•'
+        MDTextField:
+            id: passw_sign
+            hint_text: "Новый пароль"
+            mode: "rectangle"
+            password: True
+            password_mask: '•'
+        MDTextField:
+            id: passw_sign
+            hint_text: "Повторите пароль"
+            mode: "rectangle"
+            password: True
+            password_mask: '•'
+    MDIconButton:
+        icon: 'eye-off'
+        pos_hint: {'x': 0.9, 'y': 0.762}
+        user_font_size: dp(24)
+        on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
+        on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
+    MDIconButton:
+        icon: 'eye-off'
+        pos_hint: {'x': 0.9, 'y': 0.681}
+        user_font_size: dp(24)
+        on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
+        on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
+    MDIconButton:
+        icon: 'eye-off'
+        pos_hint: {'x': 0.9, 'y': 0.601}
+        user_font_size: dp(24)
+        on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
+        on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
+    RoundedButton:
+        pos_hint: {'x': 0.22, 'y': 0.025}
+        size_hint: 0.6, 0.05
+        font_size: '20sp'
+        color: 0,0,0,1
+        text: root.change
+        on_release: 
+            app.root.current = "data_personal"
+            app.root.transition.direction = "right"
+        
+<Personal_Data>:
+    FloatLayout:
+        size_hint: 1,1
+        pos_hint: {'x':0,'y':0}
+        canvas.before:
+            Color:
+                rgba: (1,0.71,0.98,1)
+            Rectangle:
+                pos: self.x, self.y + self.height*0.75
+                size: self.width, self.height*0.25 
+                source: 'Image\\image836.png'
+        MDIconButton:
+            icon: 'Image\\profile2.png'
+            user_font_size: '120sp'
+            #size_hint: 0.2,0.2
+            pos_hint: {'x':0.4,'y':0.65}
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.9
+            pos_hint: {'x': 0.05, 'y': 0.27}
+            spacing: '10dp'
+            MDTextField:
+                text: 'Артём'
+                color_mode: 'custom'
+                text_color: 0,0,0,1
+                line_color_normal: 1,0,0,1
+                mode: "rectangle"
+            MDTextField:
+                text: 'Хорев'
+                text_color: 0,0,0,1
+                mode: "rectangle"
+            MDTextField:
+                text: 'Андреевич'
+                text_color: 0,0,0,1
+                mode: "rectangle"
+            MDTextField:
+                text: 'Муром'
+                text_color: 0,0,0,1
+                mode: "rectangle"
+            MDTextField:
+                text: 'art.nindzya.00@mail.ru'
+                text_color: 0,0,0,1
+                mode: "rectangle"
+        RoundedButton:
+            pos_hint: {'x': 0.04, 'y': 0.17}
+            size_hint: 0.11, 0.05
+            font_size: '15sp'   
+            text: 'Назад'
+            on_release: 
+                app.root.current = "profile"
+                app.root.transition.direction = "right"
+        RoundedButton:
+            pos_hint: {'x': 0.68, 'y': 0.17}
+            size_hint: 0.28, 0.05
+            font_size: '15sp'   
+            text: root.change
+            on_release: 
+                app.root.current = "change_password"
+                app.root.transition.direction = "left"
+        RoundedButton:
+            pos_hint: {'x': 0.22, 'y': 0.025}
+            size_hint: 0.6, 0.05
+            font_size: '20sp'
+            color: 0,0,0,1
+            text: 'Сохранить'
+            on_release: 
+                app.root.current = "profile"
+                app.root.transition.direction = "right"
+    
+
 
 
 
