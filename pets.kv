@@ -3,7 +3,6 @@
 #:import MapView kivy_garden.mapview.MapView
 #:import MapSource kivy_garden.mapview.MapSource
 #:import ScrollView kivy.uix.scrollview
-#:import NoTransition kivy.uix.screenmanager.NoTransition
 WindowManager:
     StartScreen:
         name: 'start'
@@ -41,6 +40,24 @@ WindowManager:
     Change_Password_Screen:
         name: 'change_password'
         id: change_password_Screen
+    Add_Screen:
+        name: 'add'
+        id: add_screen
+    Add_See_Screen:
+        name: 'add_see'
+        id: add_see_screen
+    Add_Lost_Screen:
+        name: 'add_lost'
+        id: add_lost_screen
+    Add_Overexposure_Screen:
+        name: 'add_overexposure'
+        id: add_overexposure_screen
+    Add_Nanny_Screen:
+        name: 'add_nanny'
+        id: add_nanny_screen
+    Add_Walk_Screen:
+        name: 'add_walk'
+        id: add_walk_screen
 <RoundedButton@Button>:
     background_color: 0,0,0,0
     canvas.before:
@@ -109,7 +126,7 @@ WindowManager:
             lon:37.3317
             PopupMarker:
                 size_hint: None, None
-                size: 100, 100
+                size: 200, 200
 <Lost_list>:
     BoxLayout:
         orientation: "vertical"
@@ -163,13 +180,13 @@ WindowManager:
         Label:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
-            font_size: '18sp'
+            font_size: sp(18)
             text:'Потеряшка'
         MDIconButton:
             icon: 'filter'
             ripple_scale: 0.8
             pos_hint: {'x': 0.93, 'y': -0.2}
-            user_font_size: dp(36)
+            user_font_size: sp(35)
             on_release:
                 app.root.current = 'lost_filter'
                 app.root.transition.direction = "left"
@@ -196,70 +213,69 @@ WindowManager:
         pos_hint: {'x': 0, 'y': 0}
         #elevation: 20
         md_bg_color: 1,1,1,1
-        MDFloatLayout:
-            canvas:
-                Color:
-                    rgba: (0,0,0,0.5)
-                Line:
-                    points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
-            size_hint_x: 1
-            pos_hint: {'x': 0, 'y': 0}
-            MDIconButton:
-                id: nav_icon1
-                icon: 'paw'
-                ripple_scale: 0.8
-                pos_hint: {'x': 0.05, 'y': -0.1}
-                user_font_size: dp(48)
-                theme_text_color: 'Custom'
-                text_color: 0.34,0.71,0.98,1
-                on_release:
-                    #app.root.transition = NoTransition()
-                    app.change_color(self)
-                    app.root.current = 'main'
-            MDIconButton:
-                id: nav_icon2
-                icon: 'clipboard-check-outline'
-                ripple_scale: 0.8
-                pos_hint: {'x': 0.25, 'y': -0.1}
-                user_font_size: dp(48)
-                theme_text_color: 'Custom'
-                text_color: 0,0,0,1
-                on_release:
-                    app.change_color(self)
-                    app.root.current = 'service_list'
-            MDIconButton:
-                id: nav_icon3
-                icon: 'plus-circle-outline'
-                ripple_scale: 0.8
-                pos_hint: {'x': 0.45, 'y': -0.1}
-                user_font_size: dp(48)
-                theme_text_color: 'Custom'
-                text_color: 0,0,0,1
-                on_release:
-                    app.change_color(self)
-                    app.root.current = 'main'
-            MDIconButton:
-                id: nav_icon4
-                icon: 'bell-outline'
-                ripple_scale: 0.8
-                pos_hint: {'x': 0.65, 'y': -0.1}
-                user_font_size: dp(48)
-                theme_text_color: 'Custom'
-                text_color: 0,0,0,1
-                on_release:
-                    app.change_color(self)
-                    app.transition_notif()
-            MDIconButton:
-                id: nav_icon5
-                icon: 'account-circle-outline'
-                ripple_scale: 0.8
-                pos_hint: {'x': 0.84, 'y': -0.1}
-                user_font_size: dp(48)
-                theme_text_color: 'Custom'
-                text_color: 0,0,0,1
-                on_release:
-                    app.change_color(self)
-                    app.transition_profile()
+        canvas:
+            Color:
+                rgba: (0,0,0,0.5)
+            Line:
+                points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
+        #MDFloatLayout:
+
+    MDIconButton:
+        id: nav_icon1
+        icon: 'paw'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.05, 'y': 0.01}
+        user_font_size: sp(36)
+        theme_text_color: 'Custom'
+        text_color: 0.34,0.71,0.98,1
+        on_release:
+            #app.root.transition = NoTransition()
+            app.change_color(self)
+            app.root.current = 'main'
+    MDIconButton:
+        id: nav_icon2
+        icon: 'clipboard-check-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.25, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.root.current = 'service_list'
+    MDIconButton:
+        id: nav_icon3
+        icon: 'plus-circle-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.45, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.root.current = 'add'
+    MDIconButton:
+        id: nav_icon4
+        icon: 'bell-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.65, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.transition_notif()
+    MDIconButton:
+        id: nav_icon5
+        icon: 'account-circle-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.84, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.transition_profile()
 <Sign_in>:
     BoxLayout:
         orientation: 'vertical'
@@ -711,7 +727,100 @@ WindowManager:
         on_release: 
             app.root.current = "start"
             app.root.transition.direction = "right"
-
+<Ad>:
+    Image:
+        id: card_image
+        source: 'Image\\cat.jpg'
+        size_hint: 0.6, None
+        height: 150
+        pos_hint: {'x':0.2,'y':0.85}
+    Label:
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Видели тут'
+        size_hint: None, None
+        pos_hint: {'x':0.05,'y':0.77}
+    MapView:
+        lat:55.818
+        lon:37.3317
+        zoom:10
+        pos_hint: {'x': 0.1, 'y': 0.48}
+        size_hint: 0.8, None
+        height: 300
+        map_source: "osm"
+        MapMarkerPopup:
+            source: 'Image\\marker.png'
+            lat:55.818
+            lon:37.3317
+    Image:
+        source: 'Image\\pet.png'
+        size_hint: None, None
+        allow_stretch: True
+        height: 64
+        width: 64
+        pos_hint: {'x': 0, 'y': 0}
+    Label:
+        id: ad_type_pet
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Собака'
+        size_hint: None, None
+        pos_hint: {'x':0.1,'y':0.365}
+    Image:
+        source: 'Image\\gender.png'
+        size_hint: None, None
+        height: 32
+        width: 32
+        pos_hint: {'x': 0.05, 'y':0.35}
+    Label:
+        id: ad_gender_pet
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Мальчик'
+        size_hint: None, None
+        pos_hint: {'x':0.11,'y':0.315}
+    Label:
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Комментарий:'
+        size_hint: None, None
+        pos_hint: {'x':0.06,'y':0.27}
+    Label:
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 0.9, None
+        pos_hint: {'x':0.05,'y':0.17}
+        text_size: self.width, None
+        text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина.Пожалуйста кто-то что-то видел или слышал сообщите.Будем благодарны за любую информацию'
+    Label:
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Контактные данные'
+        size_hint: None, None
+        pos_hint: {'x':0.4,'y':0.08}
+    Label:
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Name'
+        size_hint: None, None
+        pos_hint: {'x':0.3,'y':0.05}
+    Label:
+        color: 0,0,0,1
+        font_size: '17sp'
+        text: 'Телефон'
+        size_hint: None, None
+        pos_hint: {'x':0.49,'y':0.05}
+    MDFillRoundFlatIconButton:
+        icon: "comment-outline"
+        text: "Открыть комментарии"
+        theme_text_color: "Custom"
+        text_color: 1, 1, 1, 1
+        theme_icon_color: "Custom"
+        icon_color: 1, 1, 1, 1
+        md_bg_color: 0.34,0.71,0.98,1
+        font_size: '17sp'
+        user_font_size: dp(36)
+        pos_hint: {'x':0.28,'y':0.03}
 <Ad_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -739,100 +848,10 @@ WindowManager:
         do_scroll_x: False
         bar_color: [0, 0, 0, 1]
         size_hint: 1, 0.95
-        FloatLayout:
-            size_hint: 1, None
-            height:1000
-            Image:
-                id: card_image
-                source: 'Image\\cat.jpg'
-                size_hint: 0.6, None
-                height: 150
-                pos_hint: {'x':0.2,'y':0.85}
-            Label:
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Видели тут'
-                size_hint: None, None
-                pos_hint: {'x':0.05,'y':0.77}
-            MapView:
-                lat:55.818
-                lon:37.3317
-                zoom:10
-                pos_hint: {'x': 0.1, 'y': 0.48}
-                size_hint: 0.8, None
-                height: 300
-                map_source: "osm"
-                MapMarkerPopup:
-                    source: 'Image\\marker.png'
-                    lat:55.818
-                    lon:37.3317
-            Image:
-                source: 'Image\\pet.png'
-                size_hint: None, None
-                height: 32
-                width: 32
-                pos_hint: {'x': 0.05, 'y': 0.4}
-            Label:
-                id: ad_type_pet
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Собака'
-                size_hint: None, None
-                pos_hint: {'x':0.1,'y':0.365}
-            Image:
-                source: 'Image\\gender.png'
-                size_hint: None, None
-                height: 32
-                width: 32
-                pos_hint: {'x': 0.05, 'y':0.35}
-            Label:
-                id: ad_gender_pet
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Мальчик'
-                size_hint: None, None
-                pos_hint: {'x':0.11,'y':0.315}
-            Label:
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Комментарий:'
-                size_hint: None, None
-                pos_hint: {'x':0.06,'y':0.27}
-            Label:
-                color: 0,0,0,1
-                font_size: '15sp'
-                size_hint: None, None
-                pos_hint: {'x':0.45,'y':0.17}
-                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца.\nБыл утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал.\nКобель американского стафордширского терьера. Зовут Дин.\nОшейник красного цвета и адресник с номером телефона хозяина.\nПожалуйста кто-то что-то видел или слышал сообщите.\nБудем благодарны за любую информацию'
-            Label:
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Контактные данные'
-                size_hint: None, None
-                pos_hint: {'x':0.4,'y':0.08}
-            Label:
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Name'
-                size_hint: None, None
-                pos_hint: {'x':0.3,'y':0.05}
-            Label:
-                color: 0,0,0,1
-                font_size: '17sp'
-                text: 'Телефон'
-                size_hint: None, None
-                pos_hint: {'x':0.49,'y':0.05}
-            MDFillRoundFlatIconButton:
-                icon: "comment-outline"
-                text: "Открыть комментарии"
-                theme_text_color: "Custom"
-                text_color: 1, 1, 1, 1
-                theme_icon_color: "Custom"
-                icon_color: 1, 1, 1, 1
-                md_bg_color: 0.34,0.71,0.98,1
-                font_size: '17sp'
-                user_font_size: dp(36)
-                pos_hint: {'x':0.28,'y':0.03}
+        Ad:
+            size_hint_y: None
+            height: 1000
+
 <Service_card>:
     orientation: 'vertical'
     size_hint_y: None
@@ -964,7 +983,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = ''
+                    app.root.current = 'add'
             MDIconButton:
                 id: nav_icon4
                 icon: 'bell-outline'
@@ -987,6 +1006,173 @@ WindowManager:
                 on_release:
                     app.change_color(self)
                     app.transition_profile()
+<About_me>:
+    FloatLayout:
+        Label:
+            pos_hint: {'center_x': 0.1, 'center_y': 0.97}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'С кем работаю:'
+        Label:
+            id: type_pet_serv
+            pos_hint: {'center_x': 0.42, 'center_y': 0.97}
+            size_hint: 0.4, None
+            text_size: self.width, None
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'со всеми'
+        Label:
+            pos_hint: {'center_x': 0.1, 'center_y': 0.9}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Размер собаки:'
+        Label:
+            id: size_dog_serv
+            pos_hint: {'center_x': 0.42, 'center_y': 0.9}
+            color: 0,0,0,1
+            font_size: '18sp'
+            size_hint: 0.4, None
+            text_size: self.width, None
+            text:'маленькие и средние породы'
+        Label:
+            pos_hint: {'center_x': 0.06, 'center_y': 0.83}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Возраст:'
+        Label:
+            id: years_serv
+            pos_hint: {'center_x': 0.42, 'center_y': 0.83}
+            color: 0,0,0,1
+            size_hint: 0.4, None
+            text_size: self.width, None
+            font_size: '18sp'
+            text:'любой'
+        Label:
+            pos_hint: {'center_x': 0.18, 'center_y': 0.76}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Специальные возможности:'
+        Label:
+            pos_hint: {'center_x': 0.14, 'center_y': 0.74}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'- Давать лекарства'
+        Label:
+            pos_hint: {'center_x': 0.13, 'center_y': 0.72}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'- Делать уколы'
+        Label:
+            pos_hint: {'center_x': 0.18, 'center_y': 0.7}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'- Круглосуточный контроль'
+        Label:
+            pos_hint: {'center_x': 0.24, 'center_y': 0.68}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'- Профильное образование - Ветеринар'
+        Label:
+            pos_hint: {'center_x': 0.135, 'center_y': 0.65}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'Контактный телефон:'
+        Label:
+            id: phone_serv
+            pos_hint: {'center_x': 0.46, 'center_y': 0.65}
+            color: 0,0,0,1
+            size_hint: 0.4, None
+            text_size: self.width, None
+            font_size: '18sp'
+            text:'89209048314'
+        Label:
+            pos_hint: {'center_x': 0.1, 'center_y': 0.62}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'Комментарий'
+        Label:
+            color: 0,0,0,1
+            font_size: '15sp'
+            size_hint: 0.95, None
+            text_size: self.width, None
+            pos_hint: {'center_x': 0.5, 'center_y': 0.58}
+            text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+
+<Reviews>:
+
+<Service_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Услуги'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'center_x': 0.03, 'center_y': 0.5}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "service_list"
+                app.root.transition.direction = "right"
+    ScrollView:
+        id: scc
+        do_scroll_x: False
+        bar_color: [0, 0, 0, 1]
+        size_hint: 1, 0.95
+        FloatLayout:
+            size_hint_y: None
+            height: 2000
+            canvas.after:
+                Color:
+                    rgba: (0,0,0,0.5)
+                Line:
+                    points: self.x, self.y+self.height*0.84, self.x+self.width, self.y+self.height*0.84
+            Image:
+                id: service_image
+                size_hint: 0.4,0.4
+                pos_hint: {'center_x': 0.5, 'center_y': 0.95}
+                source: 'Image\\service_card.png'
+            Label:
+                id: name_service
+                pos_hint: {'center_x': 0.205, 'center_y': 0.88}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Фамилия/Name'
+            Label:
+                id: addres_service
+                pos_hint: {'center_x': 0.15, 'center_y': 0.86}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Адрес'
+            Label:
+                id: cost_service
+                pos_hint: {'center_x': 0.18, 'center_y': 0.82}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Стоимость'
+            MDTabs:
+                tab_hint_x: True
+                allow_stretch: True
+                background_color: 1,1,1,1
+                text_color_normal: 0,0,0,1
+                text_color_active: 0,0,0,1
+                indicator_color: 0.34,0.71,0.98,1
+                lock_swiping: True
+                size_hint_x: 1
+                pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+                About_me:
+                    title: 'О себе'
+                Reviews:
+                    title: 'Отзывы'    
+
 <Profile_Screen>:
     FloatLayout:
         size_hint: 1,0.93
@@ -1089,7 +1275,6 @@ WindowManager:
     NavigationBar:
         size_hint: 1,0.07
         pos_hint: {'x': 0, 'y': 0}
-        #elevation: 20
         md_bg_color: 1,1,1,1
         MDFloatLayout:
             canvas:
@@ -1299,9 +1484,908 @@ WindowManager:
             on_release: 
                 app.root.current = "profile"
                 app.root.transition.direction = "right"
-    
 
-
-
-
-    
+<Add_see_card>:
+    size_hint: 0.7,0.05
+    BoxLayout:
+        Image:
+            source: 'Image\\see_add.png'
+            size_hint: 0.7, 0.7
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Нашел питомца'
+<Add_lost_card>:
+    size_hint: 0.7,0.05
+    BoxLayout:
+        Image:
+            source: 'Image\\lost_add.png'
+            size_hint: 0.7,0.7
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Потерял питомца'
+<Add_overexposure_card>:
+    size_hint: 0.7,0.05
+    BoxLayout:
+        Image:
+            source: 'Image\\overexposure_add.png'
+            size_hint: 0.7,0.7
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                color: 0,0,0,1
+                font_size: '18sp'
+                size_hint_x: 0.8
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                text_size: self.width, None
+                valign: 'middle'
+                text:'Передержка животного'
+<Add_nanny_card>:
+    size_hint: 0.7,0.05
+    BoxLayout:
+        Image:
+            source: 'Image\\nanny_add.png'
+            size_hint: 0.7,0.7
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Няня'
+<Add_walk_card>:
+    size_hint: 0.7,0.05
+    BoxLayout:
+        Image:
+            source: 'Image\\walk_add.png'
+            size_hint: 0.7,0.7
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Выгул'
+<Add_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Добавить'
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 0.7,0.85
+        pos_hint: {'center_x': 0.61, 'center_y': 0.5}
+        spacing: dp(10)
+        Add_see_card:
+            ripple_behavior: True
+            line_color: (0,0,0,0.5)
+            md_bg_color: (0.34,0.71,0.98,1)
+            style: 'outlined'
+            ripple_color: (0.34,0.71,0.98,0.1)
+            on_press: app.root.current = 'add_see'
+        Add_lost_card:
+            ripple_behavior: True
+            line_color: (0,0,0,0.5)
+            md_bg_color: (0.34,0.71,0.98,1)
+            style: 'outlined'
+            ripple_color: (0.34,0.71,0.98,0.1)
+            on_press: app.root.current = 'add_lost'
+        Add_overexposure_card:
+            ripple_behavior: True
+            line_color: (0,0,0,0.5)
+            md_bg_color: (0.34,0.71,0.98,1)
+            style: 'outlined'
+            ripple_color: (0.34,0.71,0.98,0.1)
+            on_press: app.root.current = 'add_overexposure'
+        Add_nanny_card:
+            ripple_behavior: True
+            line_color: (0,0,0,0.5)
+            md_bg_color: (0.34,0.71,0.98,1)
+            style: 'outlined'
+            ripple_color: (0.34,0.71,0.98,0.1)
+            on_press: app.root.current = 'add_nanny'
+        Add_walk_card:
+            ripple_behavior: True
+            line_color: (0,0,0,0.5)
+            md_bg_color: (0.34,0.71,0.98,1)
+            style: 'outlined'
+            ripple_color: (0.34,0.71,0.98,0.1)
+            on_press: app.root.current = 'add_walk'
+    NavigationBar:
+        size_hint: 1,0.07
+        pos_hint: {'x': 0, 'y': 0}
+        md_bg_color: 1,1,1,1
+        canvas:
+            Color:
+                rgba: (0,0,0,0.5)
+            Line:
+                points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
+    MDIconButton:
+        id: nav_icon1
+        icon: 'paw'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.05, 'y': 0.01}
+        user_font_size: sp(36)
+        theme_text_color: 'Custom'
+        text_color: 0.34,0.71,0.98,1
+        on_release:
+            #app.root.transition = NoTransition()
+            app.change_color(self)
+            app.root.current = 'main'
+            app.root.transition.direction = "right"
+    MDIconButton:
+        id: nav_icon2
+        icon: 'clipboard-check-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.25, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.root.current = 'service_list'
+            app.root.transition.direction = "right"
+    MDIconButton:
+        id: nav_icon3
+        icon: 'plus-circle-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.45, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.root.current = 'add'
+    MDIconButton:
+        id: nav_icon4
+        icon: 'bell-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.65, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.transition_notif()
+            app.root.transition.direction = "left"
+    MDIconButton:
+        id: nav_icon5
+        icon: 'account-circle-outline'
+        ripple_scale: 0.8
+        pos_hint: {'x': 0.84, 'y': 0.01}
+        user_font_size: dp(36)
+        theme_text_color: 'Custom'
+        text_color: 0,0,0,1
+        on_release:
+            app.change_color(self)
+            app.transition_profile()
+            app.root.transition.direction = "left"
+<Add_See_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Фильтры'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "add"
+                app.root.transition.direction = "right"
+    ScrollView:
+        id: scc
+        do_scroll_x: False
+        bar_color: [0, 0, 0, 1]
+        size_hint: 1, 0.95
+        FloatLayout:
+            size_hint_y: None
+            height: 2000
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Вид'
+                pos_hint: {'x': 0.08, 'y': 0.47}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.93}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Кошка'
+                pos_hint: {'x': 0.22, 'y': 0.445}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.88}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Собака'
+                pos_hint: {'x': 0.22, 'y': 0.395}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Пол'
+                pos_hint: {'x': 0.08, 'y': 0.365}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.82}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Мальчик'
+                pos_hint: {'x': 0.22, 'y': 0.335}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.77}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Девочка'
+                pos_hint: {'x': 0.22, 'y': 0.285}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.72}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Неизвестно'
+                pos_hint: {'x': 0.22, 'y': 0.235}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Где видели'
+                pos_hint: {'x': 0.08, 'y': 0.2}
+            MapView:
+                lat:55.818
+                lon:37.3317
+                zoom:10
+                pos_hint: {'x': 0.05, 'y': 0.48}
+                size_hint: 0.9,0.2
+                map_source: "osm"
+            MDTextField:
+                hint_text: 'Name'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.42}
+            MDTextField:
+                hint_text: 'Телефон'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.38}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.15}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Комментарий'
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '15sp'
+                size_hint: 0.9, None
+                text_size: self.width, None
+                pos_hint: {'x': 0.08, 'y': 0.2}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+            RoundedButton:
+                pos_hint: {'x': 0.011, 'y': 0.01}
+                size_hint: 0.96, 0.02
+                font_size: '20sp'
+                color: 0,0,0,1
+                text: 'Добавить'
+                on_release: 
+                    app.root.current = "main"
+                    app.root.transition.direction = "right"
+<Add_Lost_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Фильтры'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "add"
+                app.root.transition.direction = "right"
+    ScrollView:
+        id: scc
+        do_scroll_x: False
+        bar_color: [0, 0, 0, 1]
+        size_hint: 1, 0.95
+        FloatLayout:
+            size_hint_y: None
+            height: 2000
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Вид'
+                pos_hint: {'x': 0.08, 'y': 0.47}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.93}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Кошка'
+                pos_hint: {'x': 0.22, 'y': 0.445}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.88}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Собака'
+                pos_hint: {'x': 0.22, 'y': 0.395}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Пол'
+                pos_hint: {'x': 0.08, 'y': 0.365}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.82}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Мальчик'
+                pos_hint: {'x': 0.22, 'y': 0.335}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.77}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Девочка'
+                pos_hint: {'x': 0.22, 'y': 0.285}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.72}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Неизвестно'
+                pos_hint: {'x': 0.22, 'y': 0.235}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Где видели последний раз'
+                pos_hint: {'x': 0.08, 'y': 0.2}
+            MapView:
+                lat:55.818
+                lon:37.3317
+                zoom:10
+                pos_hint: {'x': 0.05, 'y': 0.48}
+                size_hint: 0.9,0.2
+                map_source: "osm"
+            MDTextField:
+                hint_text: 'Кличка'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.42}
+            MDTextField:
+                hint_text: 'Name'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.38}
+            MDTextField:
+                hint_text: 'Телефон'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.34}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.18}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Фото'
+            Button:
+                text: 'Загрузить фото'
+                size_hint: 0.15,0.02
+                pos_hint: {'x': 0.08, 'y': 0.285}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.25}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Комментарий'
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '15sp'
+                size_hint: 0.9, None
+                text_size: self.width, None
+                pos_hint: {'x': 0.08, 'y': 0.15}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+            RoundedButton:
+                pos_hint: {'x': 0.011, 'y': 0.01}
+                size_hint: 0.96, 0.02
+                font_size: '20sp'
+                color: 0,0,0,1
+                text: 'Добавить'
+                on_release: 
+                    app.root.current = "main"
+                    app.root.transition.direction = "right"
+<Add_Overexposure_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Фильтры'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "add"
+                app.root.transition.direction = "right"
+    ScrollView:
+        id: scc
+        do_scroll_x: False
+        bar_color: [0, 0, 0, 1]
+        size_hint: 1, 0.95
+        FloatLayout:
+            size_hint_y: None
+            height: 2000
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Вид'
+                pos_hint: {'x': 0.08, 'y': 0.47}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.93}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Кошка'
+                pos_hint: {'x': 0.22, 'y': 0.445}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.88}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Собака'
+                pos_hint: {'x': 0.22, 'y': 0.395}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Пол'
+                pos_hint: {'x': 0.08, 'y': 0.365}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.82}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Мальчик'
+                pos_hint: {'x': 0.22, 'y': 0.335}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.77}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Девочка'
+                pos_hint: {'x': 0.22, 'y': 0.285}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.72}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Неизвестно'
+                pos_hint: {'x': 0.22, 'y': 0.235}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Где видели последний раз'
+                pos_hint: {'x': 0.08, 'y': 0.2}
+            MapView:
+                lat:55.818
+                lon:37.3317
+                zoom:10
+                pos_hint: {'x': 0.05, 'y': 0.48}
+                size_hint: 0.9,0.2
+                map_source: "osm"
+            MDTextField:
+                hint_text: 'Кличка'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.42}
+            MDTextField:
+                hint_text: 'Name'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.38}
+            MDTextField:
+                hint_text: 'Телефон'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.34}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.18}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Фото'
+            Button:
+                text: 'Загрузить фото'
+                size_hint: 0.15,0.02
+                pos_hint: {'x': 0.08, 'y': 0.285}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.25}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Комментарий'
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '15sp'
+                size_hint: 0.9, None
+                text_size: self.width, None
+                pos_hint: {'x': 0.08, 'y': 0.15}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+            RoundedButton:
+                pos_hint: {'x': 0.011, 'y': 0.01}
+                size_hint: 0.96, 0.02
+                font_size: '20sp'
+                color: 0,0,0,1
+                text: 'Добавить'
+                on_release: 
+                    app.root.current = "main"
+                    app.root.transition.direction = "right"
+<Add_Nanny_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Фильтры'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "add"
+                app.root.transition.direction = "right"
+    ScrollView:
+        id: scc
+        do_scroll_x: False
+        bar_color: [0, 0, 0, 1]
+        size_hint: 1, 0.95
+        FloatLayout:
+            size_hint_y: None
+            height: 2000
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Вид'
+                pos_hint: {'x': 0.08, 'y': 0.47}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.93}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Кошка'
+                pos_hint: {'x': 0.22, 'y': 0.445}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.88}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Собака'
+                pos_hint: {'x': 0.22, 'y': 0.395}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Пол'
+                pos_hint: {'x': 0.08, 'y': 0.365}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.82}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Мальчик'
+                pos_hint: {'x': 0.22, 'y': 0.335}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.77}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Девочка'
+                pos_hint: {'x': 0.22, 'y': 0.285}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.72}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Неизвестно'
+                pos_hint: {'x': 0.22, 'y': 0.235}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Где видели последний раз'
+                pos_hint: {'x': 0.08, 'y': 0.2}
+            MapView:
+                lat:55.818
+                lon:37.3317
+                zoom:10
+                pos_hint: {'x': 0.05, 'y': 0.48}
+                size_hint: 0.9,0.2
+                map_source: "osm"
+            MDTextField:
+                hint_text: 'Кличка'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.42}
+            MDTextField:
+                hint_text: 'Name'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.38}
+            MDTextField:
+                hint_text: 'Телефон'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.34}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.18}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Фото'
+            Button:
+                text: 'Загрузить фото'
+                size_hint: 0.15,0.02
+                pos_hint: {'x': 0.08, 'y': 0.285}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.25}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Комментарий'
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '15sp'
+                size_hint: 0.9, None
+                text_size: self.width, None
+                pos_hint: {'x': 0.08, 'y': 0.15}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+            RoundedButton:
+                pos_hint: {'x': 0.011, 'y': 0.01}
+                size_hint: 0.96, 0.02
+                font_size: '20sp'
+                color: 0,0,0,1
+                text: 'Добавить'
+                on_release: 
+                    app.root.current = "main"
+                    app.root.transition.direction = "right"
+<Add_Walk_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Фильтры'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "add"
+                app.root.transition.direction = "right"
+    ScrollView:
+        id: scc
+        do_scroll_x: False
+        bar_color: [0, 0, 0, 1]
+        size_hint: 1, 0.95
+        FloatLayout:
+            size_hint_y: None
+            height: 2000
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Вид'
+                pos_hint: {'x': 0.08, 'y': 0.47}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.93}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Кошка'
+                pos_hint: {'x': 0.22, 'y': 0.445}
+            MDCheckbox:
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.88}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Собака'
+                pos_hint: {'x': 0.22, 'y': 0.395}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '20sp'
+                text:'Пол'
+                pos_hint: {'x': 0.08, 'y': 0.365}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.82}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Мальчик'
+                pos_hint: {'x': 0.22, 'y': 0.335}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.77}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Девочка'
+                pos_hint: {'x': 0.22, 'y': 0.285}
+            MDCheckbox:
+                group: 'gender'
+                size_hint: None, None
+                size: "60dp", "60dp"
+                pos_hint: {'x': 0.05, 'y': 0.72}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Неизвестно'
+                pos_hint: {'x': 0.22, 'y': 0.235}
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Где видели последний раз'
+                pos_hint: {'x': 0.08, 'y': 0.2}
+            MapView:
+                lat:55.818
+                lon:37.3317
+                zoom:10
+                pos_hint: {'x': 0.05, 'y': 0.48}
+                size_hint: 0.9,0.2
+                map_source: "osm"
+            MDTextField:
+                hint_text: 'Кличка'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.42}
+            MDTextField:
+                hint_text: 'Name'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.38}
+            MDTextField:
+                hint_text: 'Телефон'
+                mode: 'rectangle'
+                size_hint_x: 0.85
+                pos_hint: {'x': 0.09, 'y': 0.34}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.18}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Фото'
+            Button:
+                text: 'Загрузить фото'
+                size_hint: 0.15,0.02
+                pos_hint: {'x': 0.08, 'y': 0.285}
+            MDLabel:
+                pos_hint: {'x': 0.08, 'y': -0.25}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Комментарий'
+            MDLabel:
+                color: 0,0,0,1
+                font_size: '15sp'
+                size_hint: 0.9, None
+                text_size: self.width, None
+                pos_hint: {'x': 0.08, 'y': 0.15}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+            RoundedButton:
+                pos_hint: {'x': 0.011, 'y': 0.01}
+                size_hint: 0.96, 0.02
+                font_size: '20sp'
+                color: 0,0,0,1
+                text: 'Добавить'
+                on_release: 
+                    app.root.current = "main"
+                    app.root.transition.direction = "right"

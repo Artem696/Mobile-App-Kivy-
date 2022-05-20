@@ -8,6 +8,7 @@ from kivymd.uix.button import MDFlatButton
 from kivymd.uix.behaviors import FakeRectangularElevationBehavior
 from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 from kivymd.uix.tab import MDTabsBase
 from kivy.uix.widget import Widget
 from kivymd.uix.card import MDCard
@@ -39,6 +40,18 @@ class Service_Screen(Screen):
      pass
 class Profile_Screen(Screen):
      pass
+class Add_Screen(Screen):
+     pass
+class Add_See_Screen(Screen):
+     pass
+class Add_Lost_Screen(Screen):
+     pass
+class Add_Overexposure_Screen(Screen):
+     pass
+class Add_Nanny_Screen(Screen):
+     pass
+class Add_Walk_Screen(Screen):
+     pass
 class Personal_Data(Screen):
      change = StringProperty('Изменить пароль')
 class Change_Password_Screen(Screen):
@@ -50,6 +63,16 @@ class WindowManager(ScreenManager):
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Service_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
+class Add_see_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
+class Add_lost_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
+class Add_overexposure_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
+class Add_nanny_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
+class Add_walk_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Tab(MDFloatLayout, MDTabsBase):
      pass
@@ -65,7 +88,13 @@ class Sign_in(Tab):
 class Registration(Tab):
      def get_text_reg():
           pass
+class About_me(Tab):
+     pass
+class Reviews(Tab):
+     pass
 class PopupMarker(Widget):
+     pass
+class Ad(RelativeLayout):
      pass
 class NavigationBar(FakeRectangularElevationBehavior,MDFloatLayout):
      pass
@@ -83,7 +112,7 @@ class PetsApp(MDApp):
                                    )
                self.dialog.open()
      def close_dialog(self,obj):
-          self.get_running_app().stop()
+          self.root_window.close()
      def change_color(self,instance):
           screen = self.root.current
           if instance in self.root.get_screen(screen).ids.values():
@@ -100,6 +129,12 @@ class PetsApp(MDApp):
                               self.root.get_screen('service_list').ids[f'nav_icon{i+1}'].text_color = 0.34,0.71,0.98,1
                          else:
                               self.root.get_screen('service_list').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
+               if 'nav_icon3' == current_id:
+                    for i in range(5):
+                         if f'nav_icon{i+1}' == current_id:
+                              self.root.get_screen('add').ids[f'nav_icon{i+1}'].text_color = 0.34,0.71,0.98,1
+                         else:
+                              self.root.get_screen('add').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
                if 'nav_icon4' == current_id:
                     for i in range(5):
                          if f'nav_icon{i+1}' == current_id:
@@ -139,7 +174,7 @@ class PetsApp(MDApp):
      def display_ad(self, *args, **kwargs):
           self.root.current = 'ad'
      def display_service(self, *args, **kwargs):
-          self.root.current = 'service_list'
+          self.root.current = 'service'
      def on_start(self, **kwargs):
           self.check_internet()
           self.add_cards_ads()
