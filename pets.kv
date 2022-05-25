@@ -194,6 +194,7 @@ WindowManager:
         size_hint: 1,0.88
         pos_hint: {'x':0,'y':0.07}
         MDTabs:
+            id: tabs
             tab_hint_x: True
             allow_stretch: True
             background_color: 1,1,1,1
@@ -202,6 +203,7 @@ WindowManager:
             indicator_color: 0.34,0.71,0.98,1
             lock_swiping: True
             Lost_map:
+                id: lost_map
                 icon: 'map-marker'
                 title: 'Карта'
             Lost_list:
@@ -304,66 +306,149 @@ WindowManager:
         font_size: '20sp'
         color: 0,0,0,1
         text: 'Войти'
-        on_release: 
-            app.root.current = "main"
-            app.root.transition.direction = "left"
         on_release: root.get_text_sign()
-
+<Agreement@ButtonBehavior+Label>
 <Registration>:
     BoxLayout:
         orientation: 'vertical'
         size_hint_x: 0.9
-        pos_hint: {'x': 0.05, 'y': 0.359}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.855}
         spacing: '10dp'
         MDTextField:
+            id: name_reg
+            hint_text: root.hint
+            mode: "line"
+            set_text: root.check_text
+            required: True
+            helper_text_mode: "on_error"
+            helper_text: "Это поле должно быть заполнено"
+        MDTextField:
+            id: lname_reg
+            hint_text: "Фамилия"
+            mode: "line"
+            required: True
+            helper_text_mode: "on_error"
+            helper_text: "Это поле должно быть заполнено"
+            #set_text: root.on_text
+        MDTextField:
+            id: email_reg
             hint_text: "Email"
-            mode: "rectangle"
+            mode: "line"
+            required: True
+            helper_text_mode: "on_error"
+            helper_text: "Это поле должно быть заполнено"
         MDTextField:
-            hint_text: "Пароль"
-            mode: "rectangle"
+            id: city_reg
+            hint_text: "Город"
+            mode: "line"
+            required: True
+            helper_text_mode: "on_error"
+            helper_text: "Это поле должно быть заполнено"
         MDTextField:
-            hint_text: "Email"
-            mode: "rectangle"
-        MDTextField:
-            hint_text: "Пароль"
-            mode: "rectangle"
-        MDTextField:
-            hint_text: "Email"
-            mode: "rectangle"
+            id: phone_reg
+            hint_text: "Мобильный телефон"
+            mode: "line"
+            input_filter: 'int'
+            required: True
+            helper_text_mode: "on_error"
+            helper_text: "Это поле должно быть заполнено"
         MDTextField:
             id: passw_reg1
             hint_text: "Пароль"
-            mode: "rectangle"
+            mode: "line"
             password: True
             password_mask: '•'
         MDTextField:
             id: passw_reg2
             hint_text: "Повторите пароль"
-            mode: "rectangle"
+            mode: "line"
             password: True
             password_mask: '•'
+    Label:
+        id: pas_mes
+        font_size: '14sp'
+        color: 1,0,0,1
+        text: 'Пароли не совпадают'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.15}
+        size_hint_y: 0.01
+        disabled: True
+    Label:
+        id: error_name
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Неккоректный ввод имени'
+        pos_hint: {'center_x': 0.147, 'center_y': 0.875}
+        size_hint_y: 0.01
+        disabled: False
+    Label:
+        id: error_lname
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Неккоректный ввод фамилии'
+        pos_hint: {'center_x': 0.155, 'center_y': 0.79}
+        size_hint_y: 0.01
+        disabled: False
+    Label:
+        id: error_email
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Неккоректный ввод email'
+        pos_hint: {'center_x': 0.145, 'center_y': 0.7}
+        size_hint_y: 0.01
+        disabled: False
+    Label:
+        id: error_city
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Неккоректный ввод города'
+        pos_hint: {'center_x': 0.15, 'center_y': 0.615}
+        size_hint_y: 0.01
+        disabled: False
+    Label:
+        id: error_phone
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Неккоректный ввод мобильного телефона'
+        pos_hint: {'center_x': 0.202, 'center_y': 0.525}
+        disabled: False
+    Label:
+        id: requirements_pass
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Пароль должен содержать хотя бы одно число,\nхотя бы одну латинскую букву в нижнем и верхнем регистре регистре,\nможет содержать @#$%-_.\nДлина составляет от 6 до 20 символов'
+        pos_hint: {'center_x': 0.305, 'center_y': 0.32}
+        #size_hint_y: 0.01
+        disabled: False
     MDIconButton:
         icon: 'eye-off'
-        pos_hint: {'x': 0.9, 'y': 0.445}
+        pos_hint: {'x': 0.9, 'y': 0.448}
         user_font_size: dp(24)
         on_release: root.ids.passw_reg1.password = False if root.ids.passw_reg1.password else True
         on_release: self.icon = 'eye' if root.ids.passw_reg1.password else 'eye-off'
     MDIconButton:
         icon: 'eye-off'
-        pos_hint: {'x': 0.9, 'y': 0.357}
+        pos_hint: {'x': 0.9, 'y': 0.36}
         user_font_size: dp(24)
         on_release: root.ids.passw_reg2.password = False if root.ids.passw_reg2.password else True
         on_release: self.icon = 'eye' if root.ids.passw_reg2.password else 'eye-off'
     RoundedButton:
-        pos_hint: {'x': 0.02, 'y': 0.025}
+        pos_hint: {'x': 0.02, 'y': 0.05}
         size_hint: 0.96, 0.05
         font_size: '20sp'
         color: 0,0,0,1
         text: 'Зарегистрироваться'
-        on_release: 
-            app.root.current = "main"
-            app.root.transition.direction = "left"
-        on_release: root.get_text_reg()
+        on_release: root.check_field()
+    
+    Agreement:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.02}
+        size_hint_y: 0.01
+        font_size: '12sp'
+        color: 0.22,0.42,1,1
+        markup: True
+        text:'Нажимая на кнопку "Зарегистрироваться" вы даёте согласие на [u]обработку персоналльных данных[/u]'
+        on_press:
+            import webbrowser
+            webbrowser.open('https://getfile.dokpub.com/yandex/get/https://disk.yandex.ru/i/UvunXBkVPxGAJA')
 <LoginScreen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -392,6 +477,7 @@ WindowManager:
             tab_hint_x: True
             allow_stretch: True
             tab_indicator_type: 'round'
+            tab_indicator_anim: True
             background_color: 0,0,0,0.4
             text_color_normal: 0,0,0,1
             text_color_active: 0,0,0,1
