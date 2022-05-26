@@ -329,7 +329,7 @@ WindowManager:
             required: True
             helper_text_mode: "on_error"
             helper_text: "Это поле должно быть заполнено"
-            #set_text: root.on_text
+            set_text: root.check_text
         MDTextField:
             id: email_reg
             hint_text: "Email"
@@ -337,6 +337,7 @@ WindowManager:
             required: True
             helper_text_mode: "on_error"
             helper_text: "Это поле должно быть заполнено"
+            set_text: root.check_text
         MDTextField:
             id: city_reg
             hint_text: "Город"
@@ -344,6 +345,7 @@ WindowManager:
             required: True
             helper_text_mode: "on_error"
             helper_text: "Это поле должно быть заполнено"
+            set_text: root.check_text
         MDTextField:
             id: phone_reg
             hint_text: "Мобильный телефон"
@@ -352,12 +354,14 @@ WindowManager:
             required: True
             helper_text_mode: "on_error"
             helper_text: "Это поле должно быть заполнено"
+            set_text: root.check_text
         MDTextField:
             id: passw_reg1
             hint_text: "Пароль"
             mode: "line"
             password: True
             password_mask: '•'
+            set_text: root.check_text
         MDTextField:
             id: passw_reg2
             hint_text: "Повторите пароль"
@@ -379,7 +383,7 @@ WindowManager:
         text: 'Неккоректный ввод имени'
         pos_hint: {'center_x': 0.147, 'center_y': 0.875}
         size_hint_y: 0.01
-        disabled: False
+        disabled: True
     Label:
         id: error_lname
         font_size: '11sp'
@@ -387,7 +391,7 @@ WindowManager:
         text: 'Неккоректный ввод фамилии'
         pos_hint: {'center_x': 0.155, 'center_y': 0.79}
         size_hint_y: 0.01
-        disabled: False
+        disabled: True
     Label:
         id: error_email
         font_size: '11sp'
@@ -395,7 +399,7 @@ WindowManager:
         text: 'Неккоректный ввод email'
         pos_hint: {'center_x': 0.145, 'center_y': 0.7}
         size_hint_y: 0.01
-        disabled: False
+        disabled: True
     Label:
         id: error_city
         font_size: '11sp'
@@ -403,21 +407,21 @@ WindowManager:
         text: 'Неккоректный ввод города'
         pos_hint: {'center_x': 0.15, 'center_y': 0.615}
         size_hint_y: 0.01
-        disabled: False
+        disabled: True
     Label:
         id: error_phone
         font_size: '11sp'
         color: 1,0,0,1
         text: 'Неккоректный ввод мобильного телефона'
         pos_hint: {'center_x': 0.202, 'center_y': 0.525}
-        disabled: False
+        size_hint_y: 0.01
+        disabled: True
     Label:
         id: requirements_pass
         font_size: '11sp'
         color: 1,0,0,1
         text: 'Пароль должен содержать хотя бы одно число,\nхотя бы одну латинскую букву в нижнем и верхнем регистре регистре,\nможет содержать @#$%-_.\nДлина составляет от 6 до 20 символов'
         pos_hint: {'center_x': 0.305, 'center_y': 0.32}
-        #size_hint_y: 0.01
         disabled: False
     MDIconButton:
         icon: 'eye-off'
@@ -432,13 +436,13 @@ WindowManager:
         on_release: root.ids.passw_reg2.password = False if root.ids.passw_reg2.password else True
         on_release: self.icon = 'eye' if root.ids.passw_reg2.password else 'eye-off'
     RoundedButton:
+        id: btn_reg
         pos_hint: {'x': 0.02, 'y': 0.05}
         size_hint: 0.96, 0.05
         font_size: '20sp'
         color: 0,0,0,1
         text: 'Зарегистрироваться'
         on_release: root.check_field()
-    
     Agreement:
         pos_hint: {'center_x': 0.5, 'center_y': 0.02}
         size_hint_y: 0.01
@@ -1260,6 +1264,7 @@ WindowManager:
                     title: 'Отзывы'    
 
 <Profile_Screen>:
+    on_enter: root.download_data
     FloatLayout:
         size_hint: 1,0.93
         pos_hint: {'x':0,'y':0.07}
@@ -1282,7 +1287,7 @@ WindowManager:
             font_size: '25sp'
             text:'Name'
         Label:
-            id: sname_profile
+            id: lname_profile
             pos_hint: {'x':0.07,'y':0.15}
             color: 0,0,0,1
             font_size: '25sp'
@@ -1503,6 +1508,7 @@ WindowManager:
             app.root.transition.direction = "right"
         
 <Personal_Data>:
+    on_enter: root.download_data
     FloatLayout:
         size_hint: 1,1
         pos_hint: {'x':0,'y':0}
@@ -1524,29 +1530,33 @@ WindowManager:
             pos_hint: {'x': 0.05, 'y': 0.27}
             spacing: '10dp'
             MDTextField:
+                id: name_pd
                 text: 'Артём'
                 color_mode: 'custom'
                 text_color: 0,0,0,1
-                line_color_normal: 1,0,0,1
-                mode: "rectangle"
+                mode: "line"
             MDTextField:
+                id: lname_pd
                 text: 'Хорев'
                 text_color: 0,0,0,1
-                mode: "rectangle"
+                mode: "line"
             MDTextField:
-                text: 'Андреевич'
-                text_color: 0,0,0,1
-                mode: "rectangle"
-            MDTextField:
+                id: city_pd
                 text: 'Муром'
                 text_color: 0,0,0,1
-                mode: "rectangle"
+                mode: "line"
             MDTextField:
+                id: email_pd
                 text: 'art.nindzya.00@mail.ru'
                 text_color: 0,0,0,1
-                mode: "rectangle"
+                mode: "line"
+            MDTextField:
+                id: phone_pd
+                text: '89209048314'
+                text_color: 0,0,0,1
+                mode: "line"
         RoundedButton:
-            pos_hint: {'x': 0.04, 'y': 0.17}
+            pos_hint: {'x': 0.04, 'y': 0.16}
             size_hint: 0.11, 0.05
             font_size: '15sp'   
             text: 'Назад'
@@ -1554,7 +1564,7 @@ WindowManager:
                 app.root.current = "profile"
                 app.root.transition.direction = "right"
         RoundedButton:
-            pos_hint: {'x': 0.68, 'y': 0.17}
+            pos_hint: {'x': 0.68, 'y': 0.16}
             size_hint: 0.28, 0.05
             font_size: '15sp'   
             text: root.change
@@ -1562,7 +1572,7 @@ WindowManager:
                 app.root.current = "change_password"
                 app.root.transition.direction = "left"
         RoundedButton:
-            pos_hint: {'x': 0.22, 'y': 0.025}
+            pos_hint: {'x': 0.22, 'y': 0.02}
             size_hint: 0.6, 0.05
             font_size: '20sp'
             color: 0,0,0,1

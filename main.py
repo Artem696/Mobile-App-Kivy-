@@ -19,6 +19,7 @@ import requests
 import re
 import hashlib
 import os
+from email_validate import validate
 
 
 # Config.set('graphics', 'width', '414')
@@ -63,7 +64,13 @@ class Service_List_Screen(Screen):
 class Service_Screen(Screen):
      pass
 class Profile_Screen(Screen):
-     pass
+     def download_data(self):
+          global current_user
+          if current_user != None:
+               self.name = query(f'SELECT NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.ids.name_profile.text = self.name
+               self.ids.lname_profile.text = self.lname
 class Add_Screen(Screen):
      pass
 class Add_See_Screen(Screen):
@@ -78,6 +85,19 @@ class Add_Walk_Screen(Screen):
      pass
 class Personal_Data(Screen):
      change = StringProperty('Изменить пароль')
+     global current_user
+     def download_data(self):
+          if current_user != None:
+               self.name = query(f'SELECT NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.email = query(f'SELECT EMAIL FROM PROFILE WHERE ID = {current_user}','select')
+               self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = {current_user}','select')
+               self.phone = query(f'SELECT PHONE_UMBER FROM PROFILE WHERE ID = {current_user}','select')
+               self.ids.name_pd.text = self.name
+               self.ids.lname_pd.text = self.lname
+               self.ids.email_pd.text = self.email
+               self.ids.city_pd.text = self.city
+               self.ids.phone_pd.text = self.phone
 class Change_Password_Screen(Screen):
      change = StringProperty('Изменить')
 class WindowManager(ScreenManager):
@@ -111,7 +131,7 @@ class Sign_in(Tab):
                               buttons=[MDFlatButton(text='ОК',on_release = self.dialog_close)]
                               )
           self.dialog.open()
-     def dialog_close(self):
+     def dialog_close(self,obj):
         self.dialog.dismiss(force=True)
      def get_text_sign(self):
           email = self.ids.email_sign.text
@@ -136,12 +156,117 @@ class Registration(Tab):
                               buttons=[MDFlatButton(text='ОК',on_release = self.dialog_close)]
                               )
           self.dialog.open()
-     def dialog_close(self):
+     def dialog_close(self,obj):
         self.dialog.dismiss(force=True)
-     def check_text(self,instance, value):
-          pass
-          #instance.line_color_normal =  1,0,0,1
-     def check_field(self):
+     def check_text(self,instance, value, err=[]):
+          self.app = MDApp.get_running_app()
+          if self.app.root.current == 'login':
+               for k, v in self.ids.items():
+                    if v == instance:
+                         if k == 'name_reg':
+                              match_name = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{value}')
+                              if match_name:
+                                   self.ids.error_name.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                                   if k in err:
+                                        err.remove(k)
+                                   break
+                              else:
+                                   self.ids.error_name.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_reg.disabled = True
+                                   if k not in err:
+                                        err.append(k)
+                                   break
+                         if k == 'lname_reg':
+                              match_lname = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{value}')
+                              if match_lname:
+                                   self.ids.error_lname.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                                   if k in err:
+                                        err.remove(k)
+                                   break
+                              else:
+                                   self.ids.error_lname.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_reg.disabled = True
+                                   if k not in err:
+                                        err.append(k)
+                                   break
+                         if k == 'email_reg':
+                              if validate(email_address=f'{value}',check_format=True,check_blacklist=False,check_dns=False,dns_timeout=10,check_smtp=False,smtp_debug=False):
+                                   self.ids.error_email.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                                   if k in err:
+                                        err.remove(k)
+                                   break
+                              else:
+                                   self.ids.error_email.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_reg.disabled = True
+                                   if k not in err:
+                                        err.append(k)
+                                   break
+                         if k == 'city_reg':
+                              match_city = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{value}')
+                              if match_city:
+                                   self.ids.error_city.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                                   if k in err:
+                                        err.remove(k)
+                                   break
+                              else:
+                                   self.ids.error_city.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_reg.disabled = True
+                                   if k not in err:
+                                        err.append(k)
+                                   break
+                         if k == 'phone_reg':
+                              match_phone = re.fullmatch(r'^(8|\+7)[0-9]{10}$', rf'{value}')
+                              if match_phone:
+                                   self.ids.error_phone.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                                   if k in err:
+                                        err.remove(k)
+                                   break
+                              else:
+                                   self.ids.error_phone.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_reg.disabled = True
+                                   if k not in err:
+                                        err.append(k)
+                                   break
+                         if k == 'passw_reg1':
+                              match_password = re.fullmatch(r'^(?=.*[0-9].*)(?=.*[a-z].*)(?=.*[A-Z].*)[0-9a-zA-Z@#$%-_]{6,20}$', rf'{value}')
+                              if match_password:
+                                   self.ids.error_name.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                                   if k in err:
+                                        err.remove(k)
+                                   break
+                              else:
+                                   self.ids.error_name.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_reg.disabled = True
+                                   if k not in err:
+                                        err.append(k)
+                                   break
+               if not err:
+                    self.ids.btn_reg.disabled = False
+     def check_field(self,empty=[]):
           name = self.ids.name_reg.text
           lname = self.ids.lname_reg.text
           email = self.ids.email_reg.text
@@ -149,17 +274,21 @@ class Registration(Tab):
           phone = self.ids.phone_reg.text
           password1 = self.ids.passw_reg1.text
           password2 = self.ids.passw_reg2.text
-          match_name = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{name}')
-          match_lname = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{lname}')
-          match_city = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{city}')
-          match_city = re.fullmatch(r'^(8|\+7)[0-9]{10}$', rf'{phone}')
-          match_password = re.fullmatch(r'^(?=.*[0-9].*)(?=.*[a-z].*)(?=.*[A-Z].*)[0-9a-zA-Z@#$%-_]{6,20}$', rf'{password1}')
-          if match_name != True:
-               self.ids.name_reg.error = True
-          if password1 == password2:
-               self.correct_input()
-          else:
-               self.ids.pas_mes.disabled = False
+          for i in self.ids.keys():
+               if i.find('reg') != -1:
+                    if not self.ids[i].text:
+                         if i not in empty:
+                              empty.remove(i)
+                         self.show_dialog('Не все поля заполнены')
+                         break
+                    else:
+                         if i in empty:
+                              empty.remove(i)
+          if not empty: 
+               if password1 == password2:
+                    self.correct_input()
+               else:
+                    self.ids.pas_mes.disabled = False
      def correct_input(self):
           self.ids.pas_mes.disabled = True
           app = MDApp.get_running_app()
