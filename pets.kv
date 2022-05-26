@@ -728,6 +728,7 @@ WindowManager:
         size_hint: 0.7,0.8
         pos_hint: {'center_x': .5, 'center_y': .5}
         MDCheckbox:
+            id: type_cb_lost
             size_hint: None, None
             size: "60dp", "60dp"
             pos_hint: {'x': 0.05, 'y': 0.9}
@@ -737,6 +738,7 @@ WindowManager:
             text:'Пропали'
             pos_hint: {'x': 0.22, 'y': 0.447}
         MDCheckbox:
+            id: type_cb_detect
             size_hint: None, None
             size: "60dp", "60dp"
             pos_hint: {'x': 0.05, 'y': 0.85}
@@ -746,6 +748,7 @@ WindowManager:
             text:'Замечены'
             pos_hint: {'x': 0.22, 'y': 0.397}
         MDTextField:
+            id: city
             hint_text: 'Город'
             mode: 'rectangle'
             size_hint_x: 0.8
@@ -756,6 +759,7 @@ WindowManager:
             text:'Вид'
             pos_hint: {'x': 0.09, 'y': 0.2}
         MDCheckbox:
+            id: kind_cb_cat
             size_hint: None, None
             size: "60dp", "60dp"
             pos_hint: {'x': 0.05, 'y': 0.58}
@@ -765,6 +769,7 @@ WindowManager:
             text:'Кошка'
             pos_hint: {'x': 0.22, 'y': 0.125}
         MDCheckbox:
+            id: kind_cb_dog
             size_hint: None, None
             size: "60dp", "60dp"
             pos_hint: {'x': 0.05, 'y': 0.53}
@@ -779,6 +784,7 @@ WindowManager:
             text:'Пол'
             pos_hint: {'x': 0.09, 'y': 0}
         MDCheckbox:
+            id: gender_cb_man
             group: 'gender'
             size_hint: None, None
             size: "60dp", "60dp"
@@ -789,6 +795,7 @@ WindowManager:
             text:'Мальчик'
             pos_hint: {'x': 0.22, 'y': -0.075}
         MDCheckbox:
+            id: gender_cb_wom
             group: 'gender'
             size_hint: None, None
             size: "60dp", "60dp"
@@ -799,6 +806,7 @@ WindowManager:
             text:'Девочка'
             pos_hint: {'x': 0.22, 'y': -0.125}
         MDCheckbox:
+            id: gender_cb_unk
             group: 'gender'
             size_hint: None, None
             size: "60dp", "60dp"
@@ -814,9 +822,9 @@ WindowManager:
         font_size: '20sp'
         color: 0,0,0,1
         text: 'Применить'
-        on_release: 
-            app.root.current = "start"
-            app.root.transition.direction = "right"
+        on_release: root.option_filter() 
+            #app.root.current = "start"
+            #app.root.transition.direction = "right"
 <Ad>:
     Image:
         id: card_image
@@ -1264,7 +1272,7 @@ WindowManager:
                     title: 'Отзывы'    
 
 <Profile_Screen>:
-    on_enter: root.download_data
+    on_enter: root.download_data()
     FloatLayout:
         size_hint: 1,0.93
         pos_hint: {'x':0,'y':0.07}
@@ -1460,55 +1468,78 @@ WindowManager:
         orientation: 'vertical'
         size_hint_x: 0.9
         pos_hint: {'x': 0.05, 'y': 0.6}
-        spacing: '12dp'
+        spacing: '10dp'
         MDTextField:
-            id: passw_sign
+            id: old_pass
             hint_text: "Старый пароль"
-            mode: "rectangle"
+            mode: "line"
             password: True
             password_mask: '•'
         MDTextField:
-            id: passw_sign
+            id: new_pass
             hint_text: "Новый пароль"
-            mode: "rectangle"
+            mode: "line"
             password: True
             password_mask: '•'
+            set_text: root.check_pass
         MDTextField:
-            id: passw_sign
+            id: repeat_new_pass
             hint_text: "Повторите пароль"
-            mode: "rectangle"
+            mode: "line"
             password: True
             password_mask: '•'
     MDIconButton:
         icon: 'eye-off'
         pos_hint: {'x': 0.9, 'y': 0.762}
         user_font_size: dp(24)
-        on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
-        on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
+        on_release: root.ids.old_pass.password = False if root.ids.old_pass.password else True
+        on_release: self.icon = 'eye' if root.ids.old_pass.password else 'eye-off'
     MDIconButton:
         icon: 'eye-off'
         pos_hint: {'x': 0.9, 'y': 0.681}
         user_font_size: dp(24)
-        on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
-        on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
+        on_release: root.ids.new_pass.password = False if root.ids.new_pass.password else True
+        on_release: self.icon = 'eye' if root.ids.new_pass.password else 'eye-off'
     MDIconButton:
         icon: 'eye-off'
         pos_hint: {'x': 0.9, 'y': 0.601}
         user_font_size: dp(24)
-        on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
-        on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
+        on_release: root.ids.repeat_new_pass.password = False if root.ids.repeat_new_pass.password else True
+        on_release: self.icon = 'eye' if root.ids.repeat_new_pass.password else 'eye-off'
+    Label:
+        id: pas_mes
+        font_size: '14sp'
+        color: 1,0,0,1
+        text: 'Пароли не совпадают'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+        size_hint_y: 0.01
+        disabled: True
+    Label:
+        id: error_pass
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Пароль не соответствует требованиям'
+        pos_hint: {'center_x': 0.19, 'center_y': 0.68}
+        size_hint_y: 0.01
+        disabled: True
+    Label:
+        id: requirements_pass
+        font_size: '11sp'
+        color: 1,0,0,1
+        text: 'Пароль должен содержать:\n- хотя бы одно число\n- хотя бы одну латинскую букву в нижнем и верхнем регистре регистре\n- может содержать @#$%-_.\n- длина составляет от 6 до 20 символов'
+        pos_hint: {'center_x': 0.31, 'center_y': 0.52}
+        disabled: False
     RoundedButton:
-        pos_hint: {'x': 0.22, 'y': 0.025}
+        id: btn_save
+        pos_hint: {'center_x': 0.5, 'center_y': 0.05}
         size_hint: 0.6, 0.05
         font_size: '20sp'
         color: 0,0,0,1
         text: root.change
-        on_release: 
-            app.root.current = "data_personal"
-            app.root.transition.direction = "right"
+        on_press: root.check_field()
         
 <Personal_Data>:
-    on_enter: root.download_data
+    on_enter: root.download_data()
     FloatLayout:
         size_hint: 1,1
         pos_hint: {'x':0,'y':0}

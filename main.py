@@ -1,3 +1,4 @@
+from attr import has
 import kivy
 from kivymd.app import MDApp
 from kivy.app import App
@@ -56,7 +57,28 @@ class Notification_NoReg(Screen):
 class Profile_NoReg(Screen):
      pass
 class Lost_Filter(Screen):
-     pass
+     def option_filter(self):
+          self.type_ad = []
+          self.kind_ad = []
+          self.gender_ad = []
+          if self.ids.type_cb_lost.state == 'down':
+               self.type_ad.append('lost')
+               print(self.ids.type_cb_lost.state)
+          if self.ids.type_cb_detect.state == 'down':
+               self.type_ad.append('detect')
+               print(self.ids.type_cb_detect.state)
+          self.city = self.ids.city.text
+          if self.ids.kind_cb_cat.state == 'down':
+               self.kind_ad.append('cat')
+          if self.ids.kind_cb_dog.state == 'down':
+               self.kind_ad.append('dog')
+          if self.ids.gender_cb_man.state == 'down':
+               self.kind_ad.append('man')
+          if self.ids.gender_cb_wom.state == 'down':
+               self.kind_ad.append('woman')
+          if self.ids.gender_cb_unk.state == 'down':
+               self.kind_ad.append('unknown')
+
 class Ad_Screen(Screen):
      pass
 class Service_List_Screen(Screen):
@@ -85,8 +107,8 @@ class Add_Walk_Screen(Screen):
      pass
 class Personal_Data(Screen):
      change = StringProperty('Изменить пароль')
-     global current_user
      def download_data(self):
+          global current_user
           if current_user != None:
                self.name = query(f'SELECT NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
@@ -100,10 +122,75 @@ class Personal_Data(Screen):
                self.ids.phone_pd.text = self.phone
 class Change_Password_Screen(Screen):
      change = StringProperty('Изменить')
+     def show_dialog(self,text):
+          self.dialog = MDDialog(title='Ошибка',
+                              text=text, size_hint=(0.5, 0.2),
+                              buttons=[MDFlatButton(text='ОК',on_release = self.dialog_close)]
+                              )
+          self.dialog.open()
+     def dialog_close(self,obj):
+        self.dialog.dismiss(force=True)
+     def check_pass(self,instance,value):
+          self.app = MDApp.get_running_app()
+          if self.app.root.current == 'change_password':
+               for k, v in self.ids.items():
+                    if v == instance:
+                         if k == 'new_pass':
+                              match_password = re.fullmatch(r'^(?=.*[0-9].*)(?=.*[a-z].*)(?=.*[A-Z].*)[0-9a-zA-Z@#$%-_]{6,20}$', rf'{value}')
+                              if match_password:
+                                   self.ids.error_pass.disabled = True
+                                   instance.line_color_normal =  0,0,0,0.12
+                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0    
+                                   self.ids.btn_save.disabled = False
+                                   break
+                              else:
+                                   self.ids.error_pass.disabled = False
+                                   instance.line_color_normal =  1,0,0,1
+                                   instance.line_color_focus = 1,0,0,1
+                                   self.ids.btn_save.disabled = True
+                                   break
+                         if k == 'repeat_new_pass':
+                              if self.ids.new_pass.text == value:
+                                   self.ids.btn_save.disabled = False
+                                   self.ids.pas_mes.disabled = True
+                              else:
+                                   self.ids.btn_save.disabled = True
+                                   self.ids.pas_mes.disabled = False
+
+     def check_field(self):
+          global current_user
+          self.app = MDApp.get_running_app()
+          self.old_password = self.ids.old_pass.text
+          self.new_password = self.ids.new_pass.text
+          self.repeat_new_password = self.ids.repeat_new_pass.text
+          self.salt = query(f'SELECT SALT FROM PROFILE WHERE ID = {current_user}','select')
+          self.password_db = query(f'SELECT PASSWORD FROM PROFILE WHERE ID = {current_user}','select')
+          self.hash = hashlib.sha512(bytes(self.old_password,encoding='utf-8')+self.salt)
+          self.hash_dig = self.hash.hexdigest()
+          if not self.ids.old_pass.text or not self.ids.new_pass.text:
+               self.show_dialog('Не все поля заполнены')
+          else:
+               if self.hash_dig != self.password_db:
+                    self.show_dialog('Старый пароль не верный')
+                    self.ids.old_pass.text = ''
+                    self.ids.new_pass.text = ''
+                    self.ids.repeat_new_pass.text = ''
+               else:
+                    if self.new_password != self.repeat_new_password:
+                         self.ids.pas_mes.disabled = False
+                         self.ids.new_pass.text = ''
+                         self.ids.repeat_new_pass.text = ''
+                    else:
+                         salt_b = os.urandom(len(self.new_password)*2)
+                         dec_salt = salt_b.decode('utf-8',errors='ignore')
+                         hash = hashlib.sha512(bytes(self.new_password,encoding='utf-8')+bytes(dec_salt,encoding='utf-8'))
+                         hex_dig = hash.hexdigest()
+                         query(f'UPDATE PROFILE SET PASSWORD = {hex_dig}, SALT = {dec_salt}','update')
+                         self.app.root.current = "data_personal"
+                         self.app.root.transition.direction = "right"
+                    
 class WindowManager(ScreenManager):
      pass
-
-
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Service_card(RoundedRectangularElevationBehavior,MDCard):
@@ -132,7 +219,7 @@ class Sign_in(Tab):
                               )
           self.dialog.open()
      def dialog_close(self,obj):
-        self.dialog.dismiss(force=True)
+          self.dialog.dismiss(force=True)
      def get_text_sign(self):
           email = self.ids.email_sign.text
           password = self.ids.passw_sign.text
@@ -140,10 +227,11 @@ class Sign_in(Tab):
           answer = query(f'SELECT EMAIL FROM PROFILE WHERE EMAIL = {email}','select')
           salt = query(f'SELECT SALT FROM PROFILE WHERE EMAIL = {email}','select')
           password_db = query(f'SELECT PASSWORD FROM PROFILE WHERE EMAIL = {email}','select')
-          hash = hashlib.sha512(bytes(password,encoding='utf-8')+bytes(salt,encoding='utf-8'))
+          hash = hashlib.sha512(bytes(password,encoding='utf-8')+salt)
+          hash_dig = hash.hexdigest()
           if answer == None:
                self.show_dialog('Данной учетной записи не существует')
-          elif email == answer and hash == password_db:
+          elif email == answer and hash_dig == password_db:
                global current_user
                current_user = query(f'SELECT ID FROM PROFILE WHERE EMAIL = {email}','select')
                app.root.current = "main"
