@@ -85,6 +85,7 @@ WindowManager:
             font_size: '15sp'
             text: 'Мальчик'
 <Lost_card>:
+    txt_inpt: root.text
     size_hint_y: None
     height: 200
     size_hint_x: None
@@ -103,7 +104,7 @@ WindowManager:
         size_hint: 1,0.2
         pos_hint: {'center_x': .5, 'center_y': .5}
         Label:
-            id: card_data
+            id: card_date
             color: 0,0,0,1
             font_size: '15sp'
             text: 'Дата/Время'
@@ -120,6 +121,7 @@ WindowManager:
         pos_hint: {'x': 0, 'y': 0}
         size_hint: 1, 1
         map_source: "osm"
+        get_lon: root.get_lon(self.zoom,self.x)
         MapMarkerPopup:
             source: 'Image\\marker.png'
             lat:55.818
@@ -827,7 +829,7 @@ WindowManager:
             #app.root.transition.direction = "right"
 <Ad>:
     Image:
-        id: card_image
+        id: ad_image
         source: 'Image\\cat.jpg'
         size_hint: 0.6, None
         height: 150
@@ -858,7 +860,7 @@ WindowManager:
         width: 64
         pos_hint: {'x': 0, 'y': 0}
     Label:
-        id: ad_type_pet
+        id: ad_type
         color: 0,0,0,1
         font_size: '17sp'
         text: 'Собака'
@@ -871,7 +873,7 @@ WindowManager:
         width: 32
         pos_hint: {'x': 0.05, 'y':0.35}
     Label:
-        id: ad_gender_pet
+        id: ad_gender
         color: 0,0,0,1
         font_size: '17sp'
         text: 'Мальчик'
@@ -884,6 +886,7 @@ WindowManager:
         size_hint: None, None
         pos_hint: {'x':0.06,'y':0.27}
     Label:
+        id: ad_text
         color: 0,0,0,1
         font_size: '15sp'
         size_hint: 0.9, None
@@ -897,12 +900,14 @@ WindowManager:
         size_hint: None, None
         pos_hint: {'x':0.4,'y':0.08}
     Label:
+        id: ad_name
         color: 0,0,0,1
         font_size: '17sp'
-        text: 'Name'
+        text: root.name
         size_hint: None, None
         pos_hint: {'x':0.3,'y':0.05}
     Label:
+        id: ad_phone
         color: 0,0,0,1
         font_size: '17sp'
         text: 'Телефон'
@@ -955,7 +960,7 @@ WindowManager:
     size_hint_y: None
     height: 200
     size_hint_x: None
-    width: 450
+    width: 500
     pos_hint: {'center_x': .5, 'center_y': .5}
     canvas:
         Color:
@@ -990,6 +995,10 @@ WindowManager:
                 valign: 'top'
                 font_size: '15sp'
                 text: 'Город'
+            Label:
+                color: 0,0,0,1
+                font_size: '15sp'
+                text: root.text
     BoxLayout:
         orientation: 'vertical'
         size_hint: 1,0.2
@@ -1000,7 +1009,7 @@ WindowManager:
             Line:
                 points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
         Label:
-            id: price_service
+            id: price_service_card
             color: 0,0,0,1
             text_size: self.size
             valign: "middle"

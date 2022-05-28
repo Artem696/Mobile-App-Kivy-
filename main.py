@@ -13,7 +13,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivymd.uix.tab import MDTabsBase
 from kivy.uix.widget import Widget
 from kivymd.uix.card import MDCard
-from kivy.properties import StringProperty
+from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 import mysql.connector
 from mysql.connector import Error
 import requests
@@ -192,9 +192,10 @@ class Change_Password_Screen(Screen):
 class WindowManager(ScreenManager):
      pass
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
-     pass
+     txt_inpt = ObjectProperty(None)
+     text = StringProperty("1")
 class Service_card(RoundedRectangularElevationBehavior,MDCard):
-     pass
+     text = StringProperty("1")
 class Add_see_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Add_lost_card(RoundedRectangularElevationBehavior,MDCard):
@@ -210,7 +211,8 @@ class Tab(MDFloatLayout, MDTabsBase):
 class Lost_list(Tab):
      pass
 class Lost_map(Tab):
-     pass
+     def get_lon(self,zoom,x):
+          pass
 class Sign_in(Tab):
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
@@ -406,7 +408,7 @@ class Reviews(Tab):
 class PopupMarker(Widget):
      pass
 class Ad(RelativeLayout):
-     pass
+     name = StringProperty('Имя')
 class NavigationBar(FakeRectangularElevationBehavior,MDFloatLayout):
      pass
 
@@ -471,16 +473,32 @@ class PetsApp(MDApp):
           else:
                self.root.current = 'profile'
      def add_cards_ads(self):
+          self.count = query(f'SELECT COUNT(*) FROM AD','select')
           for i in range(10):
-               card = Lost_card()
-               card.bind(on_press=self.display_ad)
-               self.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(card)
+               self.card = Lost_card()
+               self.card.text = f'{i+1}'
+               #self.image = 
+               #self.date = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.count+1}','select')
+               #self.gender = query(f'SELECT GENDER FROM AD WHERE ID = {self.count+1}','select')
+               #self.card.ids.card_date.text = self.date
+               #self.card.ids.gender.text = self.gender
+               self.card.bind(on_touch_down=self.display_ad)
+               self.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(self.card)
      def add_cards_services(self):
+          self.count = query(f'SELECT COUNT(*) FROM SERVICE','select')
           for i in range(10):
-               card = Service_card()
-               card.bind(on_press=self.display_service)
-               self.root.ids.service_list_screen.ids.container_service.add_widget(card)
-     def display_ad(self, *args, **kwargs):
+               self.card = Service_card()
+               self.card.text = f'{i+1}'
+               #self.image = 
+               # self.name = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.count+1}','select')
+               # self.city = query(f'SELECT GENDER FROM AD WHERE ID = {self.count+1}','select')
+               # self.price = query(f'SELECT GENDER FROM AD WHERE ID = {self.count+1}','select')
+               # self.card.ids.name_service_card.text = self.name
+               # self.card.ids.city_service_card.text = self.city
+               # self.card.ids.price_service_card.text = self.price
+               self.card.bind(on_press=self.display_service)
+               self.root.ids.service_list_screen.ids.container_service.add_widget(self.card)
+     def display_ad(self, card, touch):
           self.root.current = 'ad'
      def display_service(self, *args, **kwargs):
           self.root.current = 'service'
