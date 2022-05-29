@@ -85,7 +85,6 @@ WindowManager:
             font_size: '15sp'
             text: 'Мальчик'
 <Lost_card>:
-    txt_inpt: root.text
     size_hint_y: None
     height: 200
     size_hint_x: None
@@ -101,8 +100,9 @@ WindowManager:
         source: 'Image\\cat.jpg'
     BoxLayout:
         orientation: 'vertical'
-        size_hint: 1,0.2
-        pos_hint: {'center_x': .5, 'center_y': .5}
+        size_hint: 1,0.3
+        spacing: dp(10)
+        pos_hint: {'center_x': .5, 'center_y': .45}
         Label:
             id: card_date
             color: 0,0,0,1
@@ -113,6 +113,12 @@ WindowManager:
             color: 0,0,0,1
             font_size: '15sp'
             text: 'Мальчик'
+        Label:
+            id: type
+            color: 0,0,0,1
+            font_size: '15sp'
+            text: 'Пропали'
+            disabled: True
 <Lost_map>:
     MapView:
         lat:55.818
@@ -849,9 +855,8 @@ WindowManager:
         height: 300
         map_source: "osm"
         MapMarkerPopup:
+            id: ad_mapmarker
             source: 'Image\\marker.png'
-            lat:55.818
-            lon:37.3317
     Image:
         source: 'Image\\pet.png'
         size_hint: None, None
@@ -860,7 +865,7 @@ WindowManager:
         width: 64
         pos_hint: {'x': 0, 'y': 0}
     Label:
-        id: ad_type
+        id: ad_kind
         color: 0,0,0,1
         font_size: '17sp'
         text: 'Собака'
@@ -946,12 +951,18 @@ WindowManager:
             on_release:             
                 app.root.current = "main"
                 app.root.transition.direction = "right"
+        MDIconButton:
+            icon: 'star-outline'
+            pos_hint: {'center_x': 0.96, 'center_y': 0.5}
+            user_font_size: dp(24)
+            #on_release:
     ScrollView:
         id: scc
         do_scroll_x: False
         bar_color: [0, 0, 0, 1]
         size_hint: 1, 0.95
         Ad:
+            id: ad_container
             size_hint_y: None
             height: 1000
 
@@ -977,14 +988,14 @@ WindowManager:
             source: 'Image\\service_card.png'
         BoxLayout:
             orientation: 'vertical'
-            size_hint: 1,0.5
-            pos_hint: {'center_x': .2, 'center_y': .7}
+            size_hint: 1,0.7
+            pos_hint: {'center_x': .2, 'center_y': .54}
+            spacing: dp(10)
             Label:
                 id: name_service_card
                 color: 0,0,0,1
                 text_size: self.size
                 halign: 'left'
-                valign: 'bottom'
                 font_size: '15sp'
                 text: 'Name'
             Label:
@@ -992,13 +1003,22 @@ WindowManager:
                 color: 0,0,0,1
                 text_size: self.size
                 halign: 'left'
-                valign: 'top'
                 font_size: '15sp'
                 text: 'Город'
             Label:
+                id: kind_service_card
                 color: 0,0,0,1
                 font_size: '15sp'
-                text: root.text
+                text_size: self.size
+                halign: 'left'
+                text: 'Вид услуги'
+                disabled: False
+            Label:
+                id: date_service_card 
+                color: 0,0,0,1
+                font_size: '15sp'
+                text: 'Дата'
+                disabled: False
     BoxLayout:
         orientation: 'vertical'
         size_hint: 1,0.2
@@ -1121,7 +1141,7 @@ WindowManager:
             font_size: '18sp'
             text:'С кем работаю:'
         Label:
-            id: type_pet_serv
+            id: kind_pet_serv
             pos_hint: {'center_x': 0.42, 'center_y': 0.97}
             size_hint: 0.4, None
             text_size: self.width, None
@@ -1129,25 +1149,28 @@ WindowManager:
             font_size: '18sp'
             text:'со всеми'
         Label:
+            id: size_dog1_serv
             pos_hint: {'center_x': 0.1, 'center_y': 0.9}
             color: 0,0,0,1
             font_size: '18sp'
             text:'Размер собаки:'
+            disabled: False
         Label:
-            id: size_dog_serv
+            id: size_dog2_serv
             pos_hint: {'center_x': 0.42, 'center_y': 0.9}
             color: 0,0,0,1
             font_size: '18sp'
             size_hint: 0.4, None
             text_size: self.width, None
             text:'маленькие и средние породы'
+            disabled: False
         Label:
             pos_hint: {'center_x': 0.06, 'center_y': 0.83}
             color: 0,0,0,1
             font_size: '18sp'
             text:'Возраст:'
         Label:
-            id: years_serv
+            id: age_serv
             pos_hint: {'center_x': 0.42, 'center_y': 0.83}
             color: 0,0,0,1
             size_hint: 0.4, None
@@ -1160,25 +1183,33 @@ WindowManager:
             font_size: '18sp'
             text:'Специальные возможности:'
         Label:
+            id: medicine
             pos_hint: {'center_x': 0.14, 'center_y': 0.74}
             color: 0,0,0,1
             font_size: '17sp'
             text:'- Давать лекарства'
+            disabled: False
         Label:
+            id: injection
             pos_hint: {'center_x': 0.13, 'center_y': 0.72}
             color: 0,0,0,1
             font_size: '17sp'
             text:'- Делать уколы'
+            disabled: False
         Label:
+            id: control
             pos_hint: {'center_x': 0.18, 'center_y': 0.7}
             color: 0,0,0,1
             font_size: '17sp'
             text:'- Круглосуточный контроль'
+            disabled: False
         Label:
+            id: education
             pos_hint: {'center_x': 0.24, 'center_y': 0.68}
             color: 0,0,0,1
             font_size: '17sp'
             text:'- Профильное образование - Ветеринар'
+            disabled: False
         Label:
             pos_hint: {'center_x': 0.135, 'center_y': 0.65}
             color: 0,0,0,1
@@ -1198,6 +1229,7 @@ WindowManager:
             font_size: '17sp'
             text:'Комментарий'
         Label:
+            id: comment
             color: 0,0,0,1
             font_size: '15sp'
             size_hint: 0.95, None
@@ -1229,6 +1261,13 @@ WindowManager:
             on_release:             
                 app.root.current = "service_list"
                 app.root.transition.direction = "right"
+        MDIconButton:
+            icon: 'star-outline'
+            pos_hint: {'center_x': 0.96, 'center_y': 0.5}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "service_list"
+                app.root.transition.direction = "right"
     ScrollView:
         id: scc
         do_scroll_x: False
@@ -1241,7 +1280,7 @@ WindowManager:
                 Color:
                     rgba: (0,0,0,0.5)
                 Line:
-                    points: self.x, self.y+self.height*0.84, self.x+self.width, self.y+self.height*0.84
+                    points: self.x, self.y+self.height*0.82, self.x+self.width, self.y+self.height*0.82
             Image:
                 id: service_image
                 size_hint: 0.4,0.4
@@ -1254,14 +1293,20 @@ WindowManager:
                 font_size: '18sp'
                 text:'Фамилия/Name'
             Label:
-                id: addres_service
+                id: address_service
                 pos_hint: {'center_x': 0.15, 'center_y': 0.86}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Адрес'
             Label:
-                id: cost_service
-                pos_hint: {'center_x': 0.18, 'center_y': 0.82}
+                id: kind_service
+                pos_hint: {'center_x': 0.21, 'center_y': 0.84}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Вид объявления'
+            Label:
+                id: price_service
+                pos_hint: {'center_x': 0.18, 'center_y': 0.8}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость'
