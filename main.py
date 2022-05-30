@@ -23,6 +23,7 @@ import os
 from email_validate import validate
 
 
+
 # Config.set('graphics', 'width', '414')
 # Config.set('graphics', 'height', '736')
 # Config.write()
@@ -62,28 +63,29 @@ class Notification_NoReg(Screen):
      pass
 class Profile_NoReg(Screen):
      pass
+class Service_Filter(Screen):
+     def apply_filter(self):
+          pass
 class Lost_Filter(Screen):
-     def option_filter(self):
-          self.type_ad = []
-          self.kind_ad = []
-          self.gender_ad = []
-          if self.ids.type_cb_lost.state == 'down':
-               self.type_ad.append('lost')
-               print(self.ids.type_cb_lost.state)
-          if self.ids.type_cb_detect.state == 'down':
-               self.type_ad.append('detect')
-               print(self.ids.type_cb_detect.state)
+     def apply_filter(self):
+          self.app = MDApp.get_running_app()
+          #self.app.root.ids.ad_screen.ids.ad_container.ids.ad_date.text
+          if self.ids.type_cb_lost.active:
+               self.type = '1'
+          if self.ids.type_cb_detect.active:
+               self.type = '1 OR 2'
           self.city = self.ids.city.text
-          if self.ids.kind_cb_cat.state == 'down':
-               self.kind_ad.append('cat')
-          if self.ids.kind_cb_dog.state == 'down':
-               self.kind_ad.append('dog')
-          if self.ids.gender_cb_man.state == 'down':
-               self.kind_ad.append('man')
-          if self.ids.gender_cb_wom.state == 'down':
-               self.kind_ad.append('woman')
-          if self.ids.gender_cb_unk.state == 'down':
-               self.kind_ad.append('unknown')
+          if self.ids.kind_cb_cat.active:
+               self.kind = '1'
+          if self.ids.kind_cb_dog.active:
+               self.kind = '1 OR 2'
+          if self.ids.gender_cb_man.active:
+               self.gender = '"Мальчик"'
+          if self.ids.gender_cb_wom.active:
+               self.gender = '"Мальчик" OR "Девочка"'
+          #self.filter_id = query(f'SELECT ID FROM AD WHERE TYPE = {self.type} AND KIND_PETS = {self.kind} AND GENDER = {self.gender}','select','all')
+          self.app.root.current = 'start'
+          
 
 class Ad_Screen(Screen):
      pass
@@ -520,6 +522,7 @@ class PetsApp(MDApp):
           # self.comment = query(f'SELECT TEXT FROM AD WHERE CREATE_DATE = {self.create_date}','select')
           # self.name = query(f'SELECT FIRST_NAME FROM AD WHERE CREATE_DATE = {self.create_date}','select')
           # self.phone_number = query(f'SELECT PHONE_NUMBER FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          # self.root.ids.ad_screen.ids.ad_container.ids.ad_date.text = self.create_date
           # self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lat = 55.818
           # self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lon = 37.3317
           # self.root.ids.ad.ids.ad_container.ids.ad_kind.text = self.type
