@@ -13,6 +13,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivymd.uix.tab import MDTabsBase
 from kivy.uix.widget import Widget
 from kivymd.uix.card import MDCard
+from kivy.clock import Clock
 from kivy.properties import StringProperty, NumericProperty, ObjectProperty
 import mysql.connector
 from mysql.connector import Error
@@ -21,6 +22,7 @@ import re
 import hashlib
 import os
 from email_validate import validate
+from geopy.geocoders import Nominatim
 
 
 
@@ -65,28 +67,145 @@ class Profile_NoReg(Screen):
      pass
 class Service_Filter(Screen):
      def apply_filter(self):
-          pass
+          self.app = MDApp.get_running_app()
+          self.city = self.ids.city.text
+          if self.ids.kind_cb_overexposure.active:
+               self.type_serv = '1'
+          if self.ids.kind_cb_nanny.active:
+               self.type_serv = '2'
+          if self.ids.kind_cb_walk.active:
+               self.type_serv = '3'
+          if self.ids.kind_cb_overexposure.active and self.ids.kind_cb_nanny.active:
+               self.type_serv = '1 OR 2'
+          if self.ids.kind_cb_overexposure.active and self.ids.kind_cb_walk.active:
+               self.type_serv = '1 OR 3'
+          if self.ids.kind_cb_overexposure.active and self.ids.kind_cb_nanny.active and self.ids.kind_cb_walk.active:
+               self.type_serv = '1 OR 2 OR 3'
+          if self.ids.kind_cb_nanny.active and self.ids.kind_cb_walk.active:
+               self.type_serv = '2 OR 3'
+          if not self.ids.kind_cb_overexposure.active and not self.ids.kind_cb_nanny.active and not self.ids.kind_cb_walk.active:
+               self.type_serv = '1 OR 2 OR 3'
+          if self.ids.kind_pet_cat.active:
+               self.kind = '1'
+          if self.ids.kind_pet_dog.active:
+               self.kind = '2'
+          if self.ids.kind_cb_dog.active and self.ids.kind_cb_cat.active:
+               self.kind = '1 OR 2'
+          if not self.ids.kind_cb_dog.active and not self.ids.kind_cb_cat.active:
+               self.kind = '1 OR 2'
+          if self.ids.age_up_1.active:
+                    self.age = '"До года"'
+          if self.ids.age_from_1.active:
+               self.age = '"Старше года"'
+          if self.ids.age_up_1.active and self.ids.age_from_1.active:
+               self.age = '"До года" OR "Старше года"'
+          if not self.ids.age_up_1.active and not self.ids.age_from_1.active:
+               self.age = '"До года" OR "Старше года"'
+          if self.ids.give_medicine.active:
+               self.medicine = 1
+          else:
+               self.medicine = 0
+          if self.ids.do_injection.active:
+               self.injection = 1
+          else:
+               self.injection = 0
+          if self.ids.control.active:
+               self.control = 1
+          else:
+               self.control = 0
+          if self.ids.education.active:
+               self.education = 1
+          else:
+               self.education = 0
+          if self.ids.kind_pet_dog.active:
+               if self.ids.small_size.active:
+                    self.size_dog = '"Маленькие"'
+               if self.ids.medium_size.active:
+                    self.size_dog = '"Средние"'
+               if self.ids.large_size.active:
+                    self.size_dog = '"Крупные"'
+               if self.ids.small_size.active and self.ids.medium_size.active:
+                    self.type_serv = '"Маленькие" OR "Средние"'
+               if self.ids.small_size.active and self.ids.large_size.active:
+                    self.type_serv = '"Маленькие" OR "Крупные"'
+               if self.ids.small_size.active and self.ids.medium_size.active and self.ids.large_size.active:
+                    self.type_serv = '"Маленькие" OR "Средние" OR "Крупные"'
+               if self.ids.medium_size.active and self.ids.large_size.active:
+                    self.type_serv = '"Средние" OR "Крупные"'
+               if not self.ids.small_size.active and not self.ids.medium_size.active and not self.ids.large_size.active:
+                    self.type_serv = '"Маленькие" OR "Средние" OR "Крупные"'
+               if self.ids.from_price.text and self.ids.to_price.text:
+                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text}','select','all')
+               if self.ids.from_price.text and not self.ids.to_price.text:
+                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text}','select','all')
+               if not self.ids.from_price.text and self.ids.to_price.text:
+                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
+          else:
+               if self.ids.from_price.text and self.ids.to_price.text:
+                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text}','select','all')
+               if self.ids.from_price.text and not self.ids.to_price.text:
+                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text}','select','all')
+               if not self.ids.from_price.text and self.ids.to_price.text:
+                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
 class Lost_Filter(Screen):
+     def visible_btn_reset(self,dt):
+          if self.ids.btn_reset.opacity == 1:
+               self.ids.btn_reset.opacity = 0
+               self.ids.btn_reset.disabled = True
+          else:
+               self.ids.btn_reset.opacity = 1
+               self.ids.btn_reset.disabled = False
      def apply_filter(self):
           self.app = MDApp.get_running_app()
           #self.app.root.ids.ad_screen.ids.ad_container.ids.ad_date.text
           if self.ids.type_cb_lost.active:
                self.type = '1'
           if self.ids.type_cb_detect.active:
+               self.type = '2'
+          if self.ids.type_cb_detect.active and self.ids.type_cb_lost.active:
+               self.type = '1 OR 2'
+          if not self.ids.type_cb_detect.active and not self.ids.type_cb_lost.active:
                self.type = '1 OR 2'
           self.city = self.ids.city.text
           if self.ids.kind_cb_cat.active:
                self.kind = '1'
           if self.ids.kind_cb_dog.active:
+               self.kind = '2'
+          if self.ids.kind_cb_dog.active and self.ids.kind_cb_cat.active:
+               self.kind = '1 OR 2'
+          if not self.ids.kind_cb_dog.active and not self.ids.kind_cb_cat.active:
                self.kind = '1 OR 2'
           if self.ids.gender_cb_man.active:
-               self.gender = '"Мальчик"'
+               self.gender = '"Мальчик" OR "Неизвестно"'
           if self.ids.gender_cb_wom.active:
-               self.gender = '"Мальчик" OR "Девочка"'
-          #self.filter_id = query(f'SELECT ID FROM AD WHERE TYPE = {self.type} AND KIND_PETS = {self.kind} AND GENDER = {self.gender}','select','all')
-          self.app.root.current = 'start'
-          
+               self.gender = '"Девочка" OR "Неизвестно"'
+          if self.ids.gender_cb_wom.active and self.ids.gender_cb_man.active:
+               self.gender = '"Мальчик" OR "Девочка" OR "Неизвестно"'
+          if not self.ids.gender_cb_wom.active and not self.ids.gender_cb_man.active:
+               self.gender = '"Мальчик" OR "Девочка" OR "Неизвестно"'
+          if self.city:
+               self.filter_id = query(f'SELECT ID FROM AD WHERE TYPE = {self.type} AND KIND_PETS = {self.kind} AND GENDER = {self.gender} AND CITY = {self.city}','select','all')
+          else:
+               self.filter_id = query(f'SELECT ID FROM AD WHERE TYPE = {self.type} AND KIND_PETS = {self.kind} AND GENDER = {self.gender}','select','all')
+          for i in range(len(self.filter_id)):
+               self.card = Lost_card()
+               self.date = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.filter_id[i][0]}','select')
+               self.gender = query(f'SELECT GENDER FROM AD WHERE ID = {self.filter_id[i][0]}','select')
+               self.type = query(f'SELECT NAME FROM TYPE_AD WHERE ID = (SELECT TYPE FROM AD WHERE ID = {self.filter_id[i][0]}))','select')
+               self.card.ids.card_date.text = self.date
+               self.card.ids.gender.text = self.gender
+               self.card.ids.type.text = self.type
+               self.card.bind(on_touch_down=self.app.display_ad)
+               self.app.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(self.card)
+          self.app.root.current = 'main'
+          Clock.schedule_once(self.visible_btn_reset, 0.5)
 
+     def reset_filter(self):
+          self.app = MDApp.get_running_app()
+          self.app.add_cards_ads()
+          self.app.root.current = 'main'
+          Clock.schedule_once(self.visible_btn_reset, 0.5)
+          
 class Ad_Screen(Screen):
      pass
 class Service_List_Screen(Screen):
@@ -104,9 +223,72 @@ class Profile_Screen(Screen):
 class Add_Screen(Screen):
      pass
 class Add_See_Screen(Screen):
-     pass
+     def apply_filter(self):
+          global current_user
+          if self.ids.kind_pet_cat.active:
+               self.kind = '1'
+               if self.ids.kind_pet_dog.active:
+                    self.kind = '1 OR 2'
+          if self.ids.gender_man.active:
+               self.gender = '"Мальчик"'
+          if self.ids.gender_wom.active:
+               self.gender = '"Девочка"'
+          if self.ids.gender_unk.active:
+               self.gender = '"Неизвестно"'
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location = self.geolocator.geocode(self.ids.address.text)
+          print(self.location.latitude, self.location.longitude)
+          self.location_r = self.geolocator.reverse(self.location.latitude, self.location.longitude)
+          self.city = self.location_r.raw['address']['city']
+          if not self.ids.name:
+               self.name = 'NULL'
+          else:
+               self.name = self.ids.name
+          if not self.ids.phone:
+               self.phone = 'NULL'
+          else:
+               self.phone = self.ids.phone
+          if not self.ids.comment:
+               self.comment = 'NULL'
+          else:
+               self.comment = self.ids.comment
+          if current_user == None:
+               self.id_user = 'NULL'
+          else:
+               self.id_user = current_user
+          query(f'INSERT INTO SERVICE (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,CITY) VALUES (1,{self.kind},{self.gender},{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.city})','select')
 class Add_Lost_Screen(Screen):
-     pass
+     def apply_filter(self):
+          if self.ids.kind_pet_cat.active:
+               self.kind = '1'
+               if self.ids.kind_pet_dog.active:
+                    self.kind = '1 OR 2'
+          if self.ids.gender_man.active:
+               self.gender = '"Мальчик"'
+          if self.ids.gender_wom.active:
+               self.gender = '"Девочка"'
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location = self.geolocator.geocode(self.ids.address.text)
+          print(self.location.address)
+          print((self.location.latitude, self.location.longitude))
+          if not self.ids.name:
+               self.name = 'NULL'
+          else:
+               self.name = self.ids.name
+          if not self.ids.phone:
+               self.phone = 'NULL'
+          else:
+               self.phone = self.ids.phone
+          if self.ids.comment:
+               self.comment = 'NULL'
+          else:
+               self.comment = self.ids.comment
+          if current_user == None:
+               self.id_user = 'NULL'
+          else:
+               self.id_user = current_user
+          self.nickname = self.ids.nackname
+          query(f'INSERT INTO SERVICE (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,NICKNAME) VALUES (2,{self.kind},{self.gender},{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.nickname})','select')
 class Add_Overexposure_Screen(Screen):
      pass
 class Add_Nanny_Screen(Screen):
@@ -468,13 +650,14 @@ class PetsApp(MDApp):
                          else:
                               self.root.get_screen('profile').ids[f'nav_icon{i+1}'].text_color = 0,0,0,1
      def transition_notif(self):
-          log_in_user = False
-          if log_in_user == False:
+          global current_user
+          if current_user == None:
                #self.root.transition = NoTransition()
                self.root.current = 'notif_noreg'
+          #else:
      def transition_profile(self):
-          log_in_user = True
-          if log_in_user == False:
+          global current_user
+          if current_user == None:
                #self.root.transition = NoTransition()
                self.root.current = 'profile_noreg'
           else:
@@ -482,6 +665,7 @@ class PetsApp(MDApp):
      def add_cards_ads(self):
           self.count = query(f'SELECT COUNT(*) FROM AD','select')
           self.answer = query('SELECT * FROM AD ORDER BY ID DESC','select','all')
+          #for i in range(self.count):
           for i in range(10):
                self.card = Lost_card()
                #self.image = 
@@ -496,6 +680,7 @@ class PetsApp(MDApp):
      def add_cards_services(self):
           self.count = query(f'SELECT COUNT(*) FROM SERVICE','select')
           self.answer = query('SELECT * FROM SERVICE ORDER BY ID DESC','select','all')
+          #for i in range(self.count):
           for i in range(10):
                self.card = Service_card()
                #self.create_date = query(f'SELECT CREATE_DATE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
