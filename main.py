@@ -23,6 +23,8 @@ import hashlib
 import os
 from email_validate import validate
 from geopy.geocoders import Nominatim
+from plyer import gps
+#from android.permissions import request_permissions, Permission
 
 
 
@@ -134,19 +136,43 @@ class Service_Filter(Screen):
                     self.type_serv = '"Средние" OR "Крупные"'
                if not self.ids.small_size.active and not self.ids.medium_size.active and not self.ids.large_size.active:
                     self.type_serv = '"Маленькие" OR "Средние" OR "Крупные"'
-               if self.ids.from_price.text and self.ids.to_price.text:
-                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text}','select','all')
-               if self.ids.from_price.text and not self.ids.to_price.text:
-                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text}','select','all')
-               if not self.ids.from_price.text and self.ids.to_price.text:
-                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
+               if self.city:
+                    if self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text} AND CITY = {self.city}','select','all')
+                    if self.ids.from_price.text and not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text} AND CITY = {self.city}','select','all')
+                    if not self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text} AND CITY = {self.city}','select','all')
+                    if not self.ids.from_price.text and  not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND CITY = {self.city}','select','all')
+               else:
+                    if self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text}','select','all')
+                    if self.ids.from_price.text and not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text}','select','all')
+                    if not self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
+                    if not self.ids.from_price.text and  not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education}','select','all')
           else:
-               if self.ids.from_price.text and self.ids.to_price.text:
-                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text}','select','all')
-               if self.ids.from_price.text and not self.ids.to_price.text:
-                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text}','select','all')
-               if not self.ids.from_price.text and self.ids.to_price.text:
-                    self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
+               if self.sity:
+                    if self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text} AND CITY = {self.city}','select','all')
+                    if self.ids.from_price.text and not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text} AND CITY = {self.city}','select','all')
+                    if not self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text} AND CITY = {self.city}','select','all')
+                    if not self.ids.from_price.text and  not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND CITY = {self.city}','select','all')
+               else:
+                    if self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text}','select','all')
+                    if self.ids.from_price.text and not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE > {self.ids.from_price.text}','select','all')
+                    if not self.ids.from_price.text and self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
+                    if not self.ids.from_price.text and  not self.ids.to_price.text:
+                         self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education}','select','all')
 class Lost_Filter(Screen):
      def visible_btn_reset(self,dt):
           if self.ids.btn_reset.opacity == 1:
@@ -223,12 +249,45 @@ class Profile_Screen(Screen):
 class Add_Screen(Screen):
      pass
 class Add_See_Screen(Screen):
+     def on_enter(self, **kwargs):
+          print("f")
+          # request_permissions([Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION])
+          # request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+     def on_location(self, **kwargs):
+          self.lat = kwargs['lat']
+          self.lon = kwargs['lon']
+     def gps_locate(self):
+          gps.configure(on_location=self.on_location)
+          gps.start(1000, 0)
+     def download_image(self):
+          pass
+     def show_dialog(self,text):
+          self.dialog = MDDialog(title='Ошибка',
+                              text=text, size_hint=(0.5, 0.2),
+                              buttons=[MDFlatButton(text='ОК',on_release = self.dialog_close)]
+                              )
+          self.dialog.open()
+     def dialog_close(self,obj):
+        self.dialog.dismiss(force=True)
      def apply_filter(self):
           global current_user
+          if not self.ids.kind_pet_cat.active and not self.ids.kind_pet_dog.active and not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
+               self.show_dialog('Укажите вид и пол животного')
+          else:
+               if not self.ids.kind_pet_cat.active and not self.ids.kind_pet_dog.active:
+                    self.show_dialog('Укажите вид животного')
+               else:
+                    if not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
+                         self.show_dialog('Укажите пол животного')
+               if not self.ids.address.text:
+                    self.show_dialog('Укажите место, где видели')
+
           if self.ids.kind_pet_cat.active:
                self.kind = '1'
-               if self.ids.kind_pet_dog.active:
-                    self.kind = '1 OR 2'
+          if self.ids.kind_pet_dog.active:
+               self.kind = '2'
+          if self.ids.kind_pet_dog.active and self.ids.kind_pet_cat.active:
+               self.kind = '1 OR 2'
           if self.ids.gender_man.active:
                self.gender = '"Мальчик"'
           if self.ids.gender_wom.active:
