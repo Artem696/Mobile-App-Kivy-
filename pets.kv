@@ -2124,6 +2124,15 @@ WindowManager:
             app.change_color(self)
             app.transition_profile()
             app.root.transition.direction = "left"
+<FileChooser>:
+    id: filechooser
+    BoxLayout:
+        size: root.width,root.height
+        orientation: 'vertical'
+        FileChooserIconView:
+            id: chooser
+            #rootpath: '/storage/emulated/0/DCIM'
+            on_selection: filechooser.selected(chooser.selection)
 <Add_See_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -2259,6 +2268,11 @@ WindowManager:
                 color: 0,0,0,1
                 pos_hint: {'x': 0.08, 'y': 0.4}
                 on_press: root.download_image()
+            Image:
+                id: img
+                size_hint: 0.15,0.05
+                pos_hint: {'x': 0.35, 'y': 0.4}
+                opacity: 0
             MDTextField:
                 id: name
                 hint_text: 'Name'

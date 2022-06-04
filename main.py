@@ -24,6 +24,9 @@ import os
 from email_validate import validate
 from geopy.geocoders import Nominatim
 from plyer import gps
+from kivy.uix.popup import Popup
+import io
+from kivy.core.image import Image as CoreImage 
 #from android.permissions import request_permissions, Permission
 
 
@@ -260,7 +263,9 @@ class Add_See_Screen(Screen):
           gps.configure(on_location=self.on_location)
           gps.start(1000, 0)
      def download_image(self):
-          pass
+          self.fc = FileChooser()
+          self.fc.open()
+          print(self.ids.img.texture)
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
                               text=text, size_hint=(0.5, 0.2),
@@ -440,6 +445,17 @@ class Change_Password_Screen(Screen):
                     
 class WindowManager(ScreenManager):
      pass
+
+class FileChooser(Popup):
+     def selected(self,filename):
+        self.img = filename[0]
+        with open(self.img, 'rb') as file:
+            self.blobData = file.read()
+        self.app = MDApp.get_running_app()
+        data = io.BytesIO(self.blobData)
+        self.app.root.ids.add_see_screen.ids.img.texture =  CoreImage(data, ext = "png").texture
+        self.app.root.ids.add_see_screen.ids.img.opacity = 1
+        self.dismiss()
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Service_card(RoundedRectangularElevationBehavior,MDCard):
