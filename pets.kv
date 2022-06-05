@@ -100,7 +100,7 @@ WindowManager:
             rectangle: self.x, self.y, self.width, self.height
     Image:
         id: card_image
-        source: 'Image\\cat.jpg'
+        #source: 'Image\\cat.jpg'
     BoxLayout:
         orientation: 'vertical'
         size_hint: 1,0.3
@@ -582,7 +582,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = ''
+                    app.root.current = 'add'
             MDIconButton:
                 id: nav_icon4
                 icon: 'bell-outline'
@@ -688,7 +688,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = ''
+                    app.root.current = 'add'
             MDIconButton:
                 id: nav_icon4
                 icon: 'bell-outline'
@@ -1003,7 +1003,7 @@ WindowManager:
             id: card_image
             size_hint: 0.8,0.8
             pos_hint: {'center_x': .5, 'center_y': .5}
-            source: 'Image\\service_card.png'
+            #source: 'Image\\service_card.png'
         BoxLayout:
             orientation: 'vertical'
             size_hint: 1,0.7
@@ -1508,9 +1508,58 @@ WindowManager:
             text_size: self.width, None
             pos_hint: {'center_x': 0.5, 'center_y': 0.58}
             text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
-
+<Reviews_card>:
+    size_hint_y: None
+    height: 100
+    size_hint_x: None
+    width: 500
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: user
+            color: 0,0,0,1
+            font_size: '15sp'
+            text_size: self.size
+            halign: 'right'
+            valign: 'bottom'
+            text: 'Мария'
+        Label:
+            id: text_card
+            color: 0,0,0,1
+            font_size: '15sp'
+            size_hint: 1, None
+            text_size: self.width, None
+            halign: 'center'
+            text: 'Доброго времени суток. Помогите пожалуйста найти домашнего питомца.'
 <Reviews>:
-
+    GridLayout:
+        id: review_container
+        size_hint: 1,0.8
+        #orientation: 'vertical'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.55}
+        cols: 1
+        spacing: dp(10)
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+    FloatLayout:
+        size_hint_y: 0.03
+        pos_hint: {'center_x': 0.5, 'center_y': 0.32}
+        MDTextFieldRect:
+            id: text_review
+            multiline: True
+            size_hint: 0.85, 0.8
+            pos_hint: {'center_x': 0.45, 'center_y': 0.5}
+        MDIconButton:
+            icon: 'arrow-right'
+            icon_size: dp(22)
+            pos_hint: {'center_x': 0.95, 'center_y': 0.5}
+            md_bg_color: 0.34,0.71,0.98,1
+            on_press: root.send_review()
 <Service_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -1537,9 +1586,6 @@ WindowManager:
             icon: 'star-outline'
             pos_hint: {'center_x': 0.96, 'center_y': 0.5}
             user_font_size: dp(24)
-            on_release:             
-                app.root.current = "service_list"
-                app.root.transition.direction = "right"
     ScrollView:
         id: scc
         do_scroll_x: False
@@ -1595,6 +1641,7 @@ WindowManager:
                 About_me:
                     title: 'О себе'
                 Reviews:
+                    id: review
                     title: 'Отзывы'    
 
 <Profile_Screen>:
@@ -1611,7 +1658,7 @@ WindowManager:
                 source: 'Image\\image836.png'
         Image:
             id: avatar
-            source: 'Image\\profile2.png'
+            source: 'Image\\def_img_profile.png'
             size_hint: 0.2,0.2
             pos_hint: {'x':0.4,'y':0.65}
         Label:
@@ -1744,7 +1791,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = ''
+                    app.root.current = 'add'
             MDIconButton:
                 id: nav_icon4
                 icon: 'bell-outline'
@@ -1877,14 +1924,16 @@ WindowManager:
                 size: self.width, self.height*0.25 
                 source: 'Image\\image836.png'
         MDIconButton:
-            icon: 'Image\\profile2.png'
+            id: profile_icon
+            icon: 'Image\\def_img_profile.png'
             user_font_size: '120sp'
             #size_hint: 0.2,0.2
             pos_hint: {'x':0.4,'y':0.65}
+            on_press: root.download_image()
         BoxLayout:
             orientation: 'vertical'
             size_hint_x: 0.9
-            pos_hint: {'x': 0.05, 'y': 0.27}
+            pos_hint: {'x': 0.05, 'y': 0.25}
             spacing: '10dp'
             MDTextField:
                 id: name_pd
@@ -1897,11 +1946,11 @@ WindowManager:
                 text: 'Хорев'
                 text_color: 0,0,0,1
                 mode: "line"
-            MDTextField:
-                id: city_pd
-                text: 'Муром'
-                text_color: 0,0,0,1
-                mode: "line"
+            # MDTextField:
+            #     id: city_pd
+            #     text: 'Муром'
+            #     text_color: 0,0,0,1
+            #     mode: "line"
             MDTextField:
                 id: email_pd
                 text: 'art.nindzya.00@mail.ru'
@@ -2667,7 +2716,7 @@ WindowManager:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Специальные возможности'
-                pos_hint: {'center_x': 0.3, 'center_y': 0.55}
+                pos_hint: {'center_x': 0.25, 'center_y': 0.55}
             MDSwitch:
                 id: medicine
                 pos_hint: {'center_x': 0.1, 'center_y': 0.53}
@@ -2726,31 +2775,58 @@ WindowManager:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.4}
             Button:
                 text: 'Определить местоположение'
-                size_hint: 0.34,0.02
+                size_hint: 0.42,0.015
                 background_color: 0,0,0,0.3
+                font_size: '15sp'
                 color: 0,0,0,1
-                pos_hint: {'center_x': 0.5, 'center_y': 0.38}
+                pos_hint: {'center_x': 0.26, 'center_y': 0.38}
                 on_press: root.gps_locate()
+            Button:
+                text: 'Загрузить фото'
+                size_hint: 0.31,0.015
+                background_color: 0,0,0,0.3
+                font_size: '15sp'
+                color: 0,0,0,1
+                pos_hint: {'center_x': 0.21, 'center_y': 0.33}
+                on_press: root.download_image()
+            Label:
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Фото'
+                pos_hint: {'center_x': 0.1, 'center_y': 0.36}
+            Label:
+                id: img
+                pos_hint: {'center_x': 0.45, 'center_y': 0.33}
+                color: 0,0,0,1
+                font_size: '12sp'
+                opacity: 0
+            Label:
+                id: path_img
+                pos_hint: {'center_x': 0.3, 'center_y': 0.36}
+                color: 0,0,0,1
+                font_size: '12sp'
+                opacity: 1
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
-                text:'Комментарий поможет продвинуть ваше объявление'
-                pos_hint: {'center_x': 0.1, 'center_y': 0.38}
+                text:'О себе'
+                pos_hint: {'center_x': 0.1, 'center_y': 0.3}
             MDTextFieldRect:
                 id: comment
                 multiline: True
                 size_hint: 0.85, None
-                pos_hint: {'center_x': 0.5, 'center_y': 0.35}
+                hint_text: 'Комментарий поможет продвинуть ваше объявление'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.26}
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость'
-                pos_hint: {'center_x': 0.12, 'center_y': 0.32}
+                pos_hint: {'center_x': 0.13, 'center_y': 0.22}
             MDTextField:
                 id: price
                 size_hint_x: 0.85
                 hint_text: 'Стоимость'
-                pos_hint: {'center_x': 0.5, 'center_y': 0.29}
+                pos_hint: {'center_x': 0.5, 'center_y': 0.2}
             RoundedButton:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.02}
                 size_hint: 0.96, 0.02
