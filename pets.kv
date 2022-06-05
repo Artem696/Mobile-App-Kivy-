@@ -323,7 +323,7 @@ WindowManager:
     BoxLayout:
         orientation: 'vertical'
         size_hint_x: 0.9
-        pos_hint: {'center_x': 0.5, 'center_y': 0.855}
+        pos_hint: {'center_x': 0.5, 'center_y': 0.84}
         spacing: '10dp'
         MDTextField:
             id: name_reg
@@ -349,14 +349,14 @@ WindowManager:
             helper_text_mode: "on_error"
             helper_text: "Это поле должно быть заполнено"
             set_text: root.check_text
-        MDTextField:
-            id: city_reg
-            hint_text: "Город"
-            mode: "line"
-            required: True
-            helper_text_mode: "on_error"
-            helper_text: "Это поле должно быть заполнено"
-            set_text: root.check_text
+        # MDTextField:
+        #     id: city_reg
+        #     hint_text: "Город"
+        #     mode: "line"
+        #     required: True
+        #     helper_text_mode: "on_error"
+        #     helper_text: "Это поле должно быть заполнено"
+        #     set_text: root.check_text
         MDTextField:
             id: phone_reg
             hint_text: "Мобильный телефон"
@@ -1473,7 +1473,14 @@ WindowManager:
             pos_hint: {'center_x': 0.24, 'center_y': 0.68}
             color: 0,0,0,1
             font_size: '17sp'
-            text:'- Профильное образование - Ветеринар'
+            text:'- Профильное образование'
+            disabled: False
+        Label:
+            id: name_education
+            pos_hint: {'center_x': 0.3, 'center_y': 0.68}
+            color: 0,0,0,1
+            font_size: '17sp'
+            text:'Ветеринар'
             disabled: False
         Label:
             pos_hint: {'center_x': 0.135, 'center_y': 0.65}
@@ -2035,6 +2042,7 @@ WindowManager:
             ripple_color: (0.34,0.71,0.98,0.1)
             on_press: app.root.current = 'add_lost'
         Add_overexposure_card:
+            id: add_overexposure_card
             ripple_behavior: True
             line_color: (0,0,0,0.5)
             md_bg_color: (0.34,0.71,0.98,1)
@@ -2042,6 +2050,7 @@ WindowManager:
             ripple_color: (0.34,0.71,0.98,0.1)
             on_press: app.root.current = 'add_overexposure'
         Add_nanny_card:
+            id: add_nanny_card
             ripple_behavior: True
             line_color: (0,0,0,0.5)
             md_bg_color: (0.34,0.71,0.98,1)
@@ -2049,6 +2058,7 @@ WindowManager:
             ripple_color: (0.34,0.71,0.98,0.1)
             on_press: app.root.current = 'add_nanny'
         Add_walk_card:
+            id: add_walk_card
             ripple_behavior: True
             line_color: (0,0,0,0.5)
             md_bg_color: (0.34,0.71,0.98,1)
@@ -2268,10 +2278,11 @@ WindowManager:
                 color: 0,0,0,1
                 pos_hint: {'x': 0.08, 'y': 0.4}
                 on_press: root.download_image()
-            Image:
+            MDLabel:
                 id: img
-                size_hint: 0.15,0.05
-                pos_hint: {'x': 0.35, 'y': 0.4}
+                pos_hint: {'x': 0.2, 'y': -0.1}
+                color: 0,0,0,1
+                font_size: '12sp'
                 opacity: 0
             MDTextField:
                 id: name
@@ -2416,7 +2427,7 @@ WindowManager:
                 text:'Контакты для связи'
                 pos_hint: {'x': 0.08, 'y': 0.09}
             MDTextField:
-                id: nickname
+                id: name
                 hint_text: 'Name'
                 mode: 'line'
                 size_hint_x: 0.85
@@ -2438,6 +2449,13 @@ WindowManager:
                 background_color: 0,0,0,0.3
                 color: 0,0,0,1
                 pos_hint: {'x': 0.08, 'y': 0.32}
+                on_press: root.download_image()
+            MDLabel:
+                id: img
+                pos_hint: {'x': 0.08, 'y': -0.14}
+                color: 0,0,0,1
+                font_size: '12sp'
+                opacity: 0
             MDLabel:
                 pos_hint: {'x': 0.08, 'y': -0.25}
                 color: 0,0,0,1
@@ -2492,11 +2510,13 @@ WindowManager:
                 text:'Личные данные'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.98}
             MDTextField:
+                id: fname
                 hint_text: 'Name'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.95}
             MDTextField:
+                id: lname
                 hint_text: 'Фвмилия'
                 mode: 'line'
                 size_hint_x: 0.85
@@ -2504,7 +2524,7 @@ WindowManager:
             Label:
                 color: 0,0,0,1
                 font_size: '20sp'
-                text:'С кеи работаю'
+                text:'С кем работаю'
                 pos_hint: {'center_x': 0.18, 'center_y': 0.9}
             CheckBox:
                 id: kind_cb_cat
@@ -2512,28 +2532,33 @@ WindowManager:
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.87}
                 color: 0,0,0,1
+                on_active: root.active_cat()
+                on_active: root.active_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Кошка'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.87}
             CheckBox:
-                id: kind_cb_cat
+                id: kind_cb_dog
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.84}
                 color: 0,0,0,1
+                on_active: root.active_dog()
+                on_active: root.active_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Собака'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.84}
             CheckBox:
-                id: kind_cb_cat
+                id: kind_cb_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.81}
                 color: 0,0,0,1
+                on_active: root.active_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
@@ -2545,44 +2570,51 @@ WindowManager:
                 text:'Размер собаки'
                 pos_hint: {'center_x': 0.18, 'center_y': 0.79}
             CheckBox:
-                id: kind_cb_cat
+                id: size_small
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.77}
                 color: 0,0,0,1
+                on_active: root.active_size_small()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Маленькие породы собак (до 12 кг и до 28 см роста)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.77}
             CheckBox:
-                id: kind_cb_cat
+                id: size_medium
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.74}
                 color: 0,0,0,1
+                on_active: root.active_size_medium()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Средние породы собак (12-25 кг, 28-60 см роста)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.74}
             CheckBox:
-                id: kind_cb_cat
+                id: size_large
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.71}
                 color: 0,0,0,1
+                on_active: root.active_size_large()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Крупные породы собак (от 25 кг, от 60 см рост)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.71}
             CheckBox:
-                id: kind_cb_cat
+                id: size_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.68}
                 color: 0,0,0,1
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
@@ -2594,33 +2626,38 @@ WindowManager:
                 text:'Возраст'
                 pos_hint: {'center_x': 0.12, 'center_y': 0.66}
             CheckBox:
-                id: kind_cb_cat
+                id: age_from_1
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.64}
                 color: 0,0,0,1
+                on_active: root.active_age_from_1()
+                on_active: root.active_age_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'До 1 года'
                 pos_hint: {'center_x': 0.3, 'center_y': 0.64}
             CheckBox:
-                id: kind_cb_cat
+                id: age_up_1
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.61}
                 color: 0,0,0,1
+                on_active: root.active_age_up_1()
+                on_active: root.active_age_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Старше 1 года'
                 pos_hint: {'center_x': 0.3, 'center_y': 0.61}
             CheckBox:
-                id: kind_cb_cat
+                id: age_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.58}
                 color: 0,0,0,1
+                on_active: root.active_age_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
@@ -2632,6 +2669,7 @@ WindowManager:
                 text:'Специальные возможности'
                 pos_hint: {'center_x': 0.3, 'center_y': 0.55}
             MDSwitch:
+                id: medicine
                 pos_hint: {'center_x': 0.1, 'center_y': 0.53}
                 width: dp(50)
             Label:
@@ -2640,6 +2678,7 @@ WindowManager:
                 text:'Давать лекарства'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.53}
             MDSwitch:
+                id: injection
                 pos_hint: {'center_x': 0.1, 'center_y': 0.51}
                 width: dp(50)
             Label:
@@ -2648,6 +2687,7 @@ WindowManager:
                 text:'Делать уколы'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.51}
             MDSwitch:
+                id: control
                 pos_hint: {'center_x': 0.1, 'center_y': 0.49}
                 width: dp(50)
             Label:
@@ -2656,53 +2696,68 @@ WindowManager:
                 text:'Круглосуточный контроль'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.49}
             MDSwitch:
+                id: education
                 pos_hint: {'center_x': 0.1, 'center_y': 0.47}
                 width: dp(50)
+                on_release: root.press_education()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Профильное образование'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.47}
             MDTextField:
+                id: name_educ
                 hint_text: 'Образование'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.45}
+                opacity: 0
             MDTextField:
+                id: phone
                 hint_text: 'Телефон'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.43}
             MDTextField:
+                id: address
                 hint_text: 'Адрес'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.4}
+            Button:
+                text: 'Определить местоположение'
+                size_hint: 0.34,0.02
+                background_color: 0,0,0,0.3
+                color: 0,0,0,1
+                pos_hint: {'center_x': 0.5, 'center_y': 0.38}
+                on_press: root.gps_locate()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
-                text:'О себе'
+                text:'Комментарий поможет продвинуть ваше объявление'
                 pos_hint: {'center_x': 0.1, 'center_y': 0.38}
             MDTextFieldRect:
+                id: comment
                 multiline: True
-                size_hint: 0.7, None
-                pos_hint: {'center_x': 0.4, 'center_y': 0.35}
+                size_hint: 0.85, None
+                pos_hint: {'center_x': 0.5, 'center_y': 0.35}
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость'
-                pos_hint: {'center_x': 0.1, 'center_y': 0.32}
-            MDTextFieldRect:
-                size_hint: 0.7, None
-                height: dp(50)
-                pos_hint: {'center_x': 0.4, 'center_y': 0.29}
+                pos_hint: {'center_x': 0.12, 'center_y': 0.32}
+            MDTextField:
+                id: price
+                size_hint_x: 0.85
+                hint_text: 'Стоимость'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.29}
             RoundedButton:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.02}
                 size_hint: 0.96, 0.02
                 font_size: '20sp'
                 color: 0,0,0,1
                 text: 'Применить'
-                on_release: root.apply_filter()
+                on_release: root.add()
 <Add_Nanny_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -2739,11 +2794,13 @@ WindowManager:
                 text:'Личные данные'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.98}
             MDTextField:
+                id: fname
                 hint_text: 'Name'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.95}
             MDTextField:
+                id: lname
                 hint_text: 'Фвмилия'
                 mode: 'line'
                 size_hint_x: 0.85
@@ -2751,7 +2808,7 @@ WindowManager:
             Label:
                 color: 0,0,0,1
                 font_size: '20sp'
-                text:'С кеи работаю'
+                text:'С кем работаю'
                 pos_hint: {'center_x': 0.18, 'center_y': 0.9}
             CheckBox:
                 id: kind_cb_cat
@@ -2759,28 +2816,33 @@ WindowManager:
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.87}
                 color: 0,0,0,1
+                on_active: root.active_cat()
+                on_active: root.active_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Кошка'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.87}
             CheckBox:
-                id: kind_cb_cat
+                id: kind_cb_dog
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.84}
                 color: 0,0,0,1
+                on_active: root.active_dog()
+                on_active: root.active_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Собака'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.84}
             CheckBox:
-                id: kind_cb_cat
+                id: kind_cb_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.81}
                 color: 0,0,0,1
+                on_active: root.active_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
@@ -2792,44 +2854,51 @@ WindowManager:
                 text:'Размер собаки'
                 pos_hint: {'center_x': 0.18, 'center_y': 0.79}
             CheckBox:
-                id: kind_cb_cat
+                id: size_small
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.77}
                 color: 0,0,0,1
+                on_active: root.active_size_small()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Маленькие породы собак (до 12 кг и до 28 см роста)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.77}
             CheckBox:
-                id: kind_cb_cat
+                id: size_medium
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.74}
                 color: 0,0,0,1
+                on_active: root.active_size_medium()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Средние породы собак (12-25 кг, 28-60 см роста)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.74}
             CheckBox:
-                id: kind_cb_cat
+                id: size_large
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.71}
                 color: 0,0,0,1
+                on_active: root.active_size_large()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Крупные породы собак (от 25 кг, от 60 см рост)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.71}
             CheckBox:
-                id: kind_cb_cat
+                id: size_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.68}
                 color: 0,0,0,1
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
@@ -2841,33 +2910,38 @@ WindowManager:
                 text:'Возраст'
                 pos_hint: {'center_x': 0.12, 'center_y': 0.66}
             CheckBox:
-                id: kind_cb_cat
+                id: age_from_1
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.64}
                 color: 0,0,0,1
+                on_active: root.active_age_from_1()
+                on_active: root.active_age_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'До 1 года'
                 pos_hint: {'center_x': 0.3, 'center_y': 0.64}
             CheckBox:
-                id: kind_cb_cat
+                id: age_up_1
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.61}
                 color: 0,0,0,1
+                on_active: root.active_age_up_1()
+                on_active: root.active_age_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Старше 1 года'
                 pos_hint: {'center_x': 0.3, 'center_y': 0.61}
             CheckBox:
-                id: kind_cb_cat
+                id: age_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.58}
                 color: 0,0,0,1
+                on_active: root.active_age_all()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
@@ -2879,6 +2953,7 @@ WindowManager:
                 text:'Специальные возможности'
                 pos_hint: {'center_x': 0.3, 'center_y': 0.55}
             MDSwitch:
+                id: medicine
                 pos_hint: {'center_x': 0.1, 'center_y': 0.53}
                 width: dp(50)
             Label:
@@ -2887,6 +2962,7 @@ WindowManager:
                 text:'Давать лекарства'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.53}
             MDSwitch:
+                id: injection
                 pos_hint: {'center_x': 0.1, 'center_y': 0.51}
                 width: dp(50)
             Label:
@@ -2895,6 +2971,7 @@ WindowManager:
                 text:'Делать уколы'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.51}
             MDSwitch:
+                id: control
                 pos_hint: {'center_x': 0.1, 'center_y': 0.49}
                 width: dp(50)
             Label:
@@ -2903,24 +2980,30 @@ WindowManager:
                 text:'Круглосуточный контроль'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.49}
             MDSwitch:
+                id: education
                 pos_hint: {'center_x': 0.1, 'center_y': 0.47}
                 width: dp(50)
+                on_release: root.press_education()
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Профильное образование'
                 pos_hint: {'center_x': 0.5, 'center_y': 0.47}
             MDTextField:
+                id: name_educ
                 hint_text: 'Образование'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.45}
+                opacity: 0
             MDTextField:
+                id: phone
                 hint_text: 'Телефон'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.43}
             MDTextField:
+                id: address
                 hint_text: 'Адрес'
                 mode: 'line'
                 size_hint_x: 0.85
@@ -2931,25 +3014,27 @@ WindowManager:
                 text:'О себе'
                 pos_hint: {'center_x': 0.1, 'center_y': 0.38}
             MDTextFieldRect:
+                id: comment
                 multiline: True
-                size_hint: 0.7, None
-                pos_hint: {'center_x': 0.4, 'center_y': 0.35}
+                size_hint: 0.85, None
+                pos_hint: {'center_x': 0.5, 'center_y': 0.35}
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость'
-                pos_hint: {'center_x': 0.1, 'center_y': 0.32}
-            MDTextFieldRect:
-                size_hint: 0.7, None
-                height: dp(50)
-                pos_hint: {'center_x': 0.4, 'center_y': 0.29}
+                pos_hint: {'center_x': 0.12, 'center_y': 0.32}
+            MDTextField:
+                id: price
+                size_hint_x: 0.85
+                hint_text: 'Стоимость'
+                pos_hint: {'center_x': 0.5, 'center_y': 0.29}
             RoundedButton:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.02}
                 size_hint: 0.96, 0.02
                 font_size: '20sp'
                 color: 0,0,0,1
                 text: 'Применить'
-                on_release: root.apply_filter()
+                on_release: root.add()
 <Add_Walk_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -2986,11 +3071,13 @@ WindowManager:
                 text:'Личные данные'
                 pos_hint: {'center_x': 0.2, 'center_y': 0.98}
             MDTextField:
+                id: fname
                 hint_text: 'Name'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.95}
             MDTextField:
+                id: lname
                 hint_text: 'Фвмилия'
                 mode: 'line'
                 size_hint_x: 0.85
@@ -3001,55 +3088,64 @@ WindowManager:
                 text:'Размер собаки'
                 pos_hint: {'center_x': 0.18, 'center_y': 0.9}
             CheckBox:
-                id: kind_cb_cat
+                id: size_small
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.85}
                 color: 0,0,0,1
+                on_active: root.active_size_small()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Маленькие породы собак (до 12 кг и до 28 см роста)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.85}
             CheckBox:
-                id: kind_cb_cat
+                id: size_medium
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.83}
                 color: 0,0,0,1
+                on_active: root.active_size_medium()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Средние породы собак (12-25 кг, 28-60 см роста)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.83}
             CheckBox:
-                id: kind_cb_cat
+                id: size_large
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.81}
                 color: 0,0,0,1
+                on_active: root.active_size_large()
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Крупные породы собак (от 25 кг, от 60 см рост)'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.81}
             CheckBox:
-                id: kind_cb_cat
+                id: size_all
                 size_hint: None, None
                 size: dp(60), dp(60)
                 pos_hint: {'center_x': 0.1, 'center_y': 0.79}
                 color: 0,0,0,1
+                on_active: root.active_size_all()
             MDLabel:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Любой'
                 pos_hint: {'center_x': 0.65, 'center_y': 0.79}
             MDTextField:
+                id: phone
                 hint_text: 'Телефон'
                 mode: 'line'
                 size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.75}
             MDTextField:
+                id: address
                 hint_text: 'Адрес'
                 mode: 'line'
                 size_hint_x: 0.85
@@ -3060,17 +3156,19 @@ WindowManager:
                 text:'О себе'
                 pos_hint: {'center_x': 0.1, 'center_y': 0.68}
             MDTextFieldRect:
+                id: comment
                 multiline: True
-                size_hint: 0.9, None
+                size_hint: 0.85, None
                 pos_hint: {'center_x': 0.5, 'center_y': 0.65}
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость за 30 минут прогулки'
                 pos_hint: {'center_x': 0.25, 'center_y': 0.6}
-            MDTextFieldRect:
-                size_hint: 0.9, None
-                height: dp(50)
+            MDTextField:
+                id: price
+                hint_text: 'Стоимость'
+                size_hint_x: 0.85
                 pos_hint: {'center_x': 0.5, 'center_y': 0.56}
             RoundedButton:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.02}
@@ -3078,4 +3176,4 @@ WindowManager:
                 font_size: '20sp'
                 color: 0,0,0,1
                 text: 'Применить'
-                on_release: root.apply_filter()
+                on_release: root.add()

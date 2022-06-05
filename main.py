@@ -35,7 +35,7 @@ from kivy.core.image import Image as CoreImage
 # Config.set('graphics', 'height', '736')
 # Config.write()
 current_user = None
-def query(query,type,count='one'):
+def query(query,type,count='one',photo=None):
           try:
                with mysql.connector.connect(
                     host="127.0.0.1",
@@ -55,9 +55,14 @@ def query(query,type,count='one'):
                                    result = cursor.fetchall()
                                    return result
                     else:
-                         with connection.cursor(buffered=True) as cursor:
-                              result = cursor.execute(query)
-                              connection.commit()
+                         if photo is None:
+                              with connection.cursor(buffered=True) as cursor:
+                                   result = cursor.execute(query)
+                                   connection.commit()
+                         else:
+                              with connection.cursor(buffered=True) as cursor:
+                                   result = cursor.execute(query,(photo,))
+                                   connection.commit()
           except Error as e:
                print(f"The error '{e}' occurred")
 class StartScreen(Screen):
@@ -95,17 +100,17 @@ class Service_Filter(Screen):
           if self.ids.kind_pet_dog.active:
                self.kind = '2'
           if self.ids.kind_cb_dog.active and self.ids.kind_cb_cat.active:
-               self.kind = '1 OR 2'
+               self.kind = '3'
           if not self.ids.kind_cb_dog.active and not self.ids.kind_cb_cat.active:
-               self.kind = '1 OR 2'
+               self.kind = '3'
           if self.ids.age_up_1.active:
-                    self.age = '"До года"'
+                    self.age = '"До 1 года"'
           if self.ids.age_from_1.active:
-               self.age = '"Старше года"'
+               self.age = '"Старше 1 года"'
           if self.ids.age_up_1.active and self.ids.age_from_1.active:
-               self.age = '"До года" OR "Старше года"'
+               self.age = '"Любой"'
           if not self.ids.age_up_1.active and not self.ids.age_from_1.active:
-               self.age = '"До года" OR "Старше года"'
+               self.age = '"Любой"'
           if self.ids.give_medicine.active:
                self.medicine = 1
           else:
@@ -245,27 +250,50 @@ class Profile_Screen(Screen):
      def download_data(self):
           global current_user
           if current_user != None:
-               self.name = query(f'SELECT NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.name = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.ids.name_profile.text = self.name
                self.ids.lname_profile.text = self.lname
 class Add_Screen(Screen):
-     pass
+     global current_user
+     def on_enter(self, **kwargs):
+          if current_user is None:
+               pass
+               #self.ids.add_overexposure_card.disabled = True
+               #self.ids.add_nanny_card.disabled = True
+               #self.ids.add_walk_card.disabled = True
 class Add_See_Screen(Screen):
+     global current_user
      def on_enter(self, **kwargs):
           print("f")
-          # request_permissions([Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION])
-          # request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+          if current_user is None:
+               print("f")
+               # request_permissions([Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION])
+               # request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+          else:
+               # request_permissions([Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION])
+               # request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+               self.ids.name.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.ids.phone.text = int(query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select'))
      def on_location(self, **kwargs):
           self.lat = kwargs['lat']
           self.lon = kwargs['lon']
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location_r = self.geolocator.reverse(self.lat, self.lon)
+          self.road = self.location_r.raw['address']['road']
+          self.house = self.location_r.raw['address']['house_number']
+          self.city = self.location_r.raw['address']['city']
+          if self.house:
+               self.ids.address.text = f'{self.road}, {self.house}, {self.city}'
+          else:
+               self.ids.address.text = f'{self.road}, {self.city}'
      def gps_locate(self):
           gps.configure(on_location=self.on_location)
           gps.start(1000, 0)
+          
      def download_image(self):
           self.fc = FileChooser()
           self.fc.open()
-          print(self.ids.img.texture)
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
                               text=text, size_hint=(0.5, 0.2),
@@ -275,7 +303,6 @@ class Add_See_Screen(Screen):
      def dialog_close(self,obj):
         self.dialog.dismiss(force=True)
      def apply_filter(self):
-          global current_user
           if not self.ids.kind_pet_cat.active and not self.ids.kind_pet_dog.active and not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
                self.show_dialog('Укажите вид и пол животного')
           else:
@@ -284,15 +311,19 @@ class Add_See_Screen(Screen):
                else:
                     if not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
                          self.show_dialog('Укажите пол животного')
-               if not self.ids.address.text:
-                    self.show_dialog('Укажите место, где видели')
+               if not self.ids.address.text and not self.ids.img.text:
+                    self.show_dialog('Укажите место и фото')
+               else:
+                    if not self.ids.address.text:
+                         self.show_dialog('Укажите место, где видели')
+                    else:
+                         if not self.ids.img.text:
+                              self.show_dialog('Загрузите фото животного')
 
           if self.ids.kind_pet_cat.active:
                self.kind = '1'
           if self.ids.kind_pet_dog.active:
                self.kind = '2'
-          if self.ids.kind_pet_dog.active and self.ids.kind_pet_cat.active:
-               self.kind = '1 OR 2'
           if self.ids.gender_man.active:
                self.gender = '"Мальчик"'
           if self.ids.gender_wom.active:
@@ -316,17 +347,58 @@ class Add_See_Screen(Screen):
                self.comment = 'NULL'
           else:
                self.comment = self.ids.comment
-          if current_user == None:
+          if current_user is None:
                self.id_user = 'NULL'
           else:
                self.id_user = current_user
-          query(f'INSERT INTO SERVICE (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,CITY) VALUES (1,{self.kind},{self.gender},{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.city})','select')
+          if self.ids.img.text:
+               with open(self.ids.img.text, 'rb') as file:
+                    self.blobData = file.read()
+          query(f'INSERT INTO AD (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,CITY) VALUES (1,{self.kind},{self.gender},%s,{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.city})','insert','one',self.blobData)
+          gps.stop()
 class Add_Lost_Screen(Screen):
+     global current_user
+     def on_enter(self, **kwargs):
+          print("f")
+          if current_user is None:
+               print("f")
+               # request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+          else:
+               # request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+               self.ids.name.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.ids.phone.text = int(query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select'))
+     def download_image(self):
+          self.fc = FileChooser()
+          self.fc.open()
+     def show_dialog(self,text):
+          self.dialog = MDDialog(title='Ошибка',
+                              text=text, size_hint=(0.5, 0.2),
+                              buttons=[MDFlatButton(text='ОК',on_release = self.dialog_close)]
+                              )
+          self.dialog.open()
+     def dialog_close(self,obj):
+        self.dialog.dismiss(force=True)
      def apply_filter(self):
+          if not self.ids.kind_pet_cat.active and not self.ids.kind_pet_dog.active and not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
+               self.show_dialog('Укажите вид и пол животного')
+          else:
+               if not self.ids.kind_pet_cat.active and not self.ids.kind_pet_dog.active:
+                    self.show_dialog('Укажите вид животного')
+               else:
+                    if not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
+                         self.show_dialog('Укажите пол животного')
+          if not self.ids.address.text and not self.ids.img.text:
+               self.show_dialog('Укажите место и фото')
+          else:
+               if not self.ids.address.text:
+                    self.show_dialog('Укажите место, где видели')
+               else:
+                    if not self.ids.img.text:
+                         self.show_dialog('Загрузите фото животного')
           if self.ids.kind_pet_cat.active:
                self.kind = '1'
-               if self.ids.kind_pet_dog.active:
-                    self.kind = '1 OR 2'
+          if self.ids.kind_pet_dog.active:
+               self.kind = '2'
           if self.ids.gender_man.active:
                self.gender = '"Мальчик"'
           if self.ids.gender_wom.active:
@@ -335,30 +407,324 @@ class Add_Lost_Screen(Screen):
           self.location = self.geolocator.geocode(self.ids.address.text)
           print(self.location.address)
           print((self.location.latitude, self.location.longitude))
-          if not self.ids.name:
+          if not self.ids.name.text:
                self.name = 'NULL'
           else:
-               self.name = self.ids.name
-          if not self.ids.phone:
+               self.name = self.ids.name.text
+          if not self.ids.phone.text:
                self.phone = 'NULL'
           else:
-               self.phone = self.ids.phone
-          if self.ids.comment:
+               self.phone = self.ids.phone.text
+          if self.ids.comment.text:
                self.comment = 'NULL'
           else:
-               self.comment = self.ids.comment
-          if current_user == None:
+               self.comment = self.ids.comment.text
+          if current_user is None:
                self.id_user = 'NULL'
           else:
                self.id_user = current_user
-          self.nickname = self.ids.nackname
-          query(f'INSERT INTO SERVICE (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,NICKNAME) VALUES (2,{self.kind},{self.gender},{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.nickname})','select')
+          self.nickname = self.ids.nackname.text
+          if self.ids.img.text:
+               with open(self.ids.img.text, 'rb') as file:
+                    self.blobData = file.read()
+          query(f'INSERT INTO AD (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,NICKNAME) VALUES (2,{self.kind},{self.gender},%s,{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.nickname})','insert','one',self.blobData)
 class Add_Overexposure_Screen(Screen):
-     pass
+     global current_user
+     # def on_enter(self, **kwargs):
+     #      self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+     #      self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+     #      self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+     def on_location(self, **kwargs):
+          self.lat = kwargs['lat']
+          self.lon = kwargs['lon']
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location_r = self.geolocator.reverse(self.lat, self.lon)
+          self.road = self.location_r.raw['address']['road']
+          self.house = self.location_r.raw['address']['house_number']
+          self.city = self.location_r.raw['address']['city']
+          if self.house:
+               self.ids.address.text = f'{self.road}, {self.house}, {self.city}'
+          else:
+               self.ids.address.text = f'{self.road}, {self.city}'
+     def gps_locate(self):
+          gps.configure(on_location=self.on_location)
+          gps.start(1000, 0)
+     def add(self):
+          self.fname = self.ids.fname.text
+          self.lname = self.ids.lname.text
+          self.phone_number = self.ids.phone.text
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location = self.geolocator.geocode(self.ids.address.text)
+          self.location_r = self.geolocator.reverse(self.location.latitude, self.location.longitude)
+          self.city = self.location_r.raw['address']['city']
+          self.address = self.ids.address.text
+          if self.ids.kind_cb_cat.active:
+               self.kind = '1'
+          if self.ids.kind_cb_dog.active:
+               self.kind = '2'
+          if self.ids.kind_cb_all.active:
+               self.kind = '3'
+          if self.ids.kind_cb_dog.active or self.ids.kind_cb_all.active:
+               if self.ids.size_small.active:
+                    self.size_dog = 'Маленькие'
+               if self.ids.size_medium.active:
+                    self.size_dog = 'Средние'
+               if self.ids.size_large.active:
+                    self.size_dog = 'Крупные'
+               if self.ids.size_small.active and self.ids.size_medium.active:
+                    self.size_dog = 'Маленькие и Средние'
+               if self.ids.size_small.active and self.ids.size_medium.active:
+                    self.size_dog = 'Маленькие и Крупные'
+               if self.ids.size_medium.active and self.ids.size_large.active:
+                    self.size_dog = 'Средние и Крупные'
+               if self.ids.size_all.active:
+                    self.size_dog = 'Любые'
+          else:
+               self.size_dog = 'NULL'
+          if self.ids.age_from_1.active:
+               self.age = 'До 1 года'
+          if self.ids.age_up_1.active:
+               self.age = 'Страше 1 года'
+          if self.ids.age_all.active:
+               self.age = 'Любой'
+          if self.ids.medicine.active:
+               self.medicine = 1
+          else:
+               self.medicine = 0
+          if self.ids.injection.active:
+               self.injection = 1
+          else:
+               self.injection = 0
+          if self.ids.control.active:
+               self.control = 1
+          else:
+               self.control = 0
+          if self.ids.education.active:
+               self.education = 1
+               self.name_educ = self.ids.name_educ.text
+          else:
+               self.education = 0
+               self.name_educ = 'NULL'
+          if self.ids.comment.text:
+               self.comment = self.ids.comment.text
+          else:
+               self.comment = 'NULL'
+          self.price = self.ids.price.text
+          query(f'INSERT INTO AD (KIND,KIND_PETS,SIZE_DOG,AGE,ID_PROFILE,`MEDICINE`,`INJECTION`,`CONTROL`,`EDUCATION`,`NAME_EDUCATION`,`ADDRESS`,`CITY`,`PRICE`,`ABOUT_ME`,`CREATE_DATE`) VALUES (1,{self.kind},{self.size_dog},{self.age},{current_user},{self.medicine},{self.injection},{self.control},{self.education},{self.name_educ},{self.address},{self.city},{self.price},{self.comment},NOW())','insert')
+          gps.stop()
+     def active_cat(self):
+          if self.ids.kind_cb_cat.active and self.ids.kind_cb_all.active:
+               self.ids.kind_cb_all.active = False
+     def active_dog(self):
+          if self.ids.kind_cb_dog.active and self.ids.kind_cb_all.active:
+               self.ids.kind_cb_all.active = False
+     def active_all(self):
+          if self.ids.kind_cb_cat.active and self.ids.kind_cb_dog.active:
+               self.ids.kind_cb_all.active = True
+               self.ids.kind_cb_cat.active = False
+               self.ids.kind_cb_dog.active = False
+     def active_size_all(self):
+          if self.ids.size_small.active and self.ids.size_medium.active and self.ids.size_large.active:
+               self.ids.size_all.active = True
+               self.ids.size_small.active = False
+               self.ids.size_medium.active = False
+               self.ids.size_large.active = False
+     def active_size_large(self):
+          if self.ids.size_large.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_size_medium(self):
+          if self.ids.size_medium.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_size_small(self):
+          if self.ids.size_small.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_age_all(self):
+          if self.ids.age_from_1.active and self.ids.age_up_1.active:
+               self.ids.age_all.active = True
+               self.ids.age_from_1.active = False
+               self.ids.age_up_1.active = False
+     def active_age_from_1(self):
+          if self.ids.age_from_1.active and self.ids.age_all.active:
+               self.ids.age_all.active = False
+     def active_age_up_1(self):
+          if self.ids.age_up_1.active and self.ids.age_all.active:
+               self.ids.age_all.active = False
+     def press_education(self):
+          if self.ids.education.active:
+               self.ids.name_educ.opacity = 1
+          else:
+               self.ids.name_educ.opacity = 0
+
+          
+
 class Add_Nanny_Screen(Screen):
-     pass
+     # def on_enter(self, **kwargs):
+     #      self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+     #      self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+     #      self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+     def on_location(self, **kwargs):
+          self.lat = kwargs['lat']
+          self.lon = kwargs['lon']
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location_r = self.geolocator.reverse(self.lat, self.lon)
+          self.road = self.location_r.raw['address']['road']
+          self.house = self.location_r.raw['address']['house_number']
+          self.city = self.location_r.raw['address']['city']
+          if self.house:
+               self.ids.address.text = f'{self.road}, {self.house}, {self.city}'
+          else:
+               self.ids.address.text = f'{self.road}, {self.city}'
+     def gps_locate(self):
+          gps.configure(on_location=self.on_location)
+          gps.start(1000, 0)
+     def add(self):
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location = self.geolocator.geocode(self.ids.address.text)
+          self.location_r = self.geolocator.reverse(self.location.latitude, self.location.longitude)
+          self.city = self.location_r.raw['address']['city']
+          self.address = self.ids.address.text
+          if self.ids.kind_cb_cat.active:
+               self.kind = '1'
+          if self.ids.kind_cb_dog.active:
+               self.kind = '2'
+          if self.ids.kind_cb_all.active:
+               self.kind = '3'
+          if self.ids.kind_cb_dog.active or self.ids.kind_cb_all.active:
+               if self.ids.size_small.active:
+                    self.size_dog = 'Маленькие'
+               if self.ids.size_medium.active:
+                    self.size_dog = 'Средние'
+               if self.ids.size_large.active:
+                    self.size_dog = 'Крупные'
+               if self.ids.size_small.active and self.ids.size_medium.active:
+                    self.size_dog = 'Маленькие и Средние'
+               if self.ids.size_small.active and self.ids.size_medium.active:
+                    self.size_dog = 'Маленькие и Крупные'
+               if self.ids.size_medium.active and self.ids.size_large.active:
+                    self.size_dog = 'Средние и Крупные'
+               if self.ids.size_all.active:
+                    self.size_dog = 'Любые'
+          else:
+               self.size_dog = 'NULL'
+          if self.ids.age_from_1.active:
+               self.age = 'До 1 года'
+          if self.ids.age_up_1.active:
+               self.age = 'Страше 1 года'
+          if self.ids.age_all.active:
+               self.age = 'Любой'
+          if self.ids.medicine.active:
+               self.medicine = 1
+          else:
+               self.medicine = 0
+          if self.ids.injection.active:
+               self.injection = 1
+          else:
+               self.injection = 0
+          if self.ids.control.active:
+               self.control = 1
+          else:
+               self.control = 0
+          if self.ids.education.active:
+               self.education = 1
+               self.name_educ = self.ids.name_educ.text
+          else:
+               self.education = 0
+               self.name_educ = 'NULL'
+          if self.ids.comment.text:
+               self.comment = self.ids.comment.text
+          else:
+               self.comment = 'NULL'
+          self.price = self.ids.price.text
+          query(f'INSERT INTO AD (KIND,KIND_PETS,SIZE_DOG,AGE,ID_PROFILE,`MEDICINE`,`INJECTION`,`CONTROL`,`EDUCATION`,`NAME_EDUCATION`,`ADDRESS`,`CITY`,`PRICE`,`ABOUT_ME`,`CREATE_DATE`) VALUES (1,{self.kind},{self.size_dog},{self.age},{current_user},{self.medicine},{self.injection},{self.control},{self.education},{self.name_educ},{self.address},{self.city},{self.price},{self.comment},NOW())','insert')
+          gps.stop()
+     def active_cat(self):
+          if self.ids.kind_cb_cat.active and self.ids.kind_cb_all.active:
+               self.ids.kind_cb_all.active = False
+     def active_dog(self):
+          if self.ids.kind_cb_dog.active and self.ids.kind_cb_all.active:
+               self.ids.kind_cb_all.active = False
+     def active_all(self):
+          if self.ids.kind_cb_cat.active and self.ids.kind_cb_dog.active:
+               self.ids.kind_cb_all.active = True
+               self.ids.kind_cb_cat.active = False
+               self.ids.kind_cb_dog.active = False
+     def active_size_all(self):
+          if self.ids.size_small.active and self.ids.size_medium.active and self.ids.size_large.active:
+               self.ids.size_all.active = True
+               self.ids.size_small.active = False
+               self.ids.size_medium.active = False
+               self.ids.size_large.active = False
+     def active_size_large(self):
+          if self.ids.size_large.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_size_medium(self):
+          if self.ids.size_medium.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_size_small(self):
+          if self.ids.size_small.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_age_all(self):
+          if self.ids.age_from_1.active and self.ids.age_up_1.active:
+               self.ids.age_all.active = True
+               self.ids.age_from_1.active = False
+               self.ids.age_up_1.active = False
+     def active_age_from_1(self):
+          if self.ids.age_from_1.active and self.ids.age_all.active:
+               self.ids.age_all.active = False
+     def active_age_up_1(self):
+          if self.ids.age_up_1.active and self.ids.age_all.active:
+               self.ids.age_all.active = False
+     def press_education(self):
+          if self.ids.education.active:
+               self.ids.name_educ.opacity = 1
+          else:
+               self.ids.name_educ.opacity = 0
 class Add_Walk_Screen(Screen):
-     pass
+     # def on_enter(self, **kwargs):
+     #      self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+     #      self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+     #      self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+     def add(self):
+          self.geolocator = Nominatim(user_agent="Pets")
+          self.location = self.geolocator.geocode(self.ids.address.text)
+          self.location_r = self.geolocator.reverse(self.location.latitude, self.location.longitude)
+          self.city = self.location_r.raw['address']['city']
+          self.address = self.ids.address.text
+          if self.ids.size_small.active:
+               self.size_dog = 'Маленькие'
+          if self.ids.size_medium.active:
+               self.size_dog = 'Средние'
+          if self.ids.size_large.active:
+               self.size_dog = 'Крупные'
+          if self.ids.size_small.active and self.ids.size_medium.active:
+               self.size_dog = 'Маленькие и Средние'
+          if self.ids.size_small.active and self.ids.size_medium.active:
+               self.size_dog = 'Маленькие и Крупные'
+          if self.ids.size_medium.active and self.ids.size_large.active:
+               self.size_dog = 'Средние и Крупные'
+          if self.ids.size_all.active:
+               self.size_dog = 'Любые'
+          if self.ids.comment.text:
+               self.comment = self.ids.comment.text
+          else:
+               self.comment = 'NULL'
+          self.price = self.ids.price.text
+          query(f'INSERT INTO AD (KIND,SIZE_DOG,ID_PROFILE,`ADDRESS`,`CITY`,`PRICE`,`ABOUT_ME`,`CREATE_DATE`) VALUES (1,{self.size_dog},{current_user},{self.address},{self.city},{self.price},{self.comment},NOW())','insert')
+     def active_size_all(self):
+          if self.ids.size_small.active and self.ids.size_medium.active and self.ids.size_large.active:
+               self.ids.size_all.active = True
+               self.ids.size_small.active = False
+               self.ids.size_medium.active = False
+               self.ids.size_large.active = False
+     def active_size_large(self):
+          if self.ids.size_large.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_size_medium(self):
+          if self.ids.size_medium.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
+     def active_size_small(self):
+          if self.ids.size_small.active and self.ids.size_all.active:
+               self.ids.size_all.active = False
 class Personal_Data(Screen):
      change = StringProperty('Изменить пароль')
      def download_data(self):
@@ -448,14 +814,15 @@ class WindowManager(ScreenManager):
 
 class FileChooser(Popup):
      def selected(self,filename):
-        self.img = filename[0]
-        with open(self.img, 'rb') as file:
-            self.blobData = file.read()
-        self.app = MDApp.get_running_app()
-        data = io.BytesIO(self.blobData)
-        self.app.root.ids.add_see_screen.ids.img.texture =  CoreImage(data, ext = "png").texture
-        self.app.root.ids.add_see_screen.ids.img.opacity = 1
-        self.dismiss()
+          self.img = filename[0]
+          self.app = MDApp.get_running_app()
+          if self.app.root.current == 'add_see':
+               self.app.root.ids.add_see_screen.ids.img.text = self.img
+               self.app.root.ids.add_see_screen.ids.img.opacity = 1
+          if self.app.root.current == 'add_lost':
+               self.app.root.ids.add_lost_screen.ids.img.text = self.img
+               self.app.root.ids.add_lost_screen.ids.img.opacity = 1
+          self.dismiss()
 class Lost_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Service_card(RoundedRectangularElevationBehavior,MDCard):
@@ -567,23 +934,23 @@ class Registration(Tab):
                                    if k not in err:
                                         err.append(k)
                                    break
-                         if k == 'city_reg':
-                              match_city = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{value}')
-                              if match_city:
-                                   self.ids.error_city.disabled = True
-                                   instance.line_color_normal =  0,0,0,0.12
-                                   instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
-                                   if k in err:
-                                        err.remove(k)
-                                   break
-                              else:
-                                   self.ids.error_city.disabled = False
-                                   instance.line_color_normal =  1,0,0,1
-                                   instance.line_color_focus = 1,0,0,1
-                                   self.ids.btn_reg.disabled = True
-                                   if k not in err:
-                                        err.append(k)
-                                   break
+                         # if k == 'city_reg':
+                         #      match_city = re.fullmatch(r'^[А-Яа-яЁёa-zA-Z]+$', rf'{value}')
+                         #      if match_city:
+                         #           self.ids.error_city.disabled = True
+                         #           instance.line_color_normal =  0,0,0,0.12
+                         #           instance.line_color_focus = 0.12941176470588237, 0.5882352941176471, 0.9529411764705882, 1.0
+                         #           if k in err:
+                         #                err.remove(k)
+                         #           break
+                         #      else:
+                         #           self.ids.error_city.disabled = False
+                         #           instance.line_color_normal =  1,0,0,1
+                         #           instance.line_color_focus = 1,0,0,1
+                         #           self.ids.btn_reg.disabled = True
+                         #           if k not in err:
+                         #                err.append(k)
+                         #           break
                          if k == 'phone_reg':
                               match_phone = re.fullmatch(r'^(8|\+7)[0-9]{10}$', rf'{value}')
                               if match_phone:
@@ -649,7 +1016,7 @@ class Registration(Tab):
           name = self.ids.name_reg.text
           lname = self.ids.lname_reg.text
           email = self.ids.email_reg.text
-          city = self.ids.city_reg.text
+          #city = self.ids.city_reg.text
           phone = self.ids.phone_reg.text
           password = self.ids.passw_reg1.text
           salt_b = os.urandom(len(password)*2)
@@ -659,8 +1026,8 @@ class Registration(Tab):
           hash = hashlib.sha512(bytes(password,encoding='utf-8')+bytes(dec_salt,encoding='utf-8'))
           hex_dig = hash.hexdigest()
           #print(hex_dig)
-          query(f'INSERT INTO city VALUE({city})','insert')
-          query(f'INSERT INTO profile (FIRST_NAME, LAST_NAME, EMAIL, CITY, PHONE_NUMBER, PASSWORD, SALT) VALUES ({name},{lname},{email},(SELECT ID FROM city where name = {city}),{phone},{hex_dig}),{dec_salt}','insert')
+          #query(f'INSERT INTO city VALUE({city})','insert')
+          query(f'INSERT INTO profile (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, PASSWORD, SALT) VALUES ({name},{lname},{email},{phone},{hex_dig}),{dec_salt}','insert')
           global current_user
           current_user = query(f'SELECT ID FROM PROFILE WHERE EMAIL = {email}','select')
           app.root.current = "main"
