@@ -25,6 +25,12 @@ WindowManager:
     Ad_Screen:
         name: 'ad'
         id: ad_screen
+    Comment_Screen:
+        name: 'comment'
+        id: comment_screen
+    Review_Screen:
+        name: 'review'
+        id: review_screen
     Service_List_Screen:
         name: 'service_list'
         id: service_list_screen
@@ -40,6 +46,12 @@ WindowManager:
     Personal_Data:
         name: 'data_personal'
         id: personal_data
+    My_Ad_Screen:
+        name: 'my_ad'
+        id: my_ad_screen
+    My_Service_Screen:
+        name: 'my_service'
+        id: my_aervice_screen
     Change_Password_Screen:
         name: 'change_password'
         id: change_password_Screen
@@ -61,6 +73,9 @@ WindowManager:
     Add_Walk_Screen:
         name: 'add_walk'
         id: add_walk_screen
+    Notification_Screen:
+        name: 'notification'
+        id: notification_screen
 <RoundedButton@Button>:
     background_color: 0,0,0,0
     canvas.before:
@@ -81,9 +96,11 @@ WindowManager:
                 size: self.size
                 radius: [20]
         Image:
-            source: 'Image\\cat.jpg'
+            id: img_marker
+            source: 'Image\\logo.png'
             size_hint: 1, 1
         Label:
+            id: gender_marker
             color: 0,0,0,1
             font_size: '15sp'
             text: 'Мальчик'
@@ -92,7 +109,7 @@ WindowManager:
     height: 200
     size_hint_x: None
     width: 500
-    pos_hint: {'center_x': .5, 'center_y': .5}
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     canvas:
         Color:
             rgba: (0,0,0,1)
@@ -100,7 +117,9 @@ WindowManager:
             rectangle: self.x, self.y, self.width, self.height
     Image:
         id: card_image
-        #source: 'Image\\cat.jpg'
+        source: 'Image\\catt.jpg'
+        size_hint_y: 0.9
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     BoxLayout:
         orientation: 'vertical'
         size_hint: 1,0.3
@@ -121,35 +140,28 @@ WindowManager:
             color: 0,0,0,1
             font_size: '15sp'
             text: 'Пропали'
-            disabled: True
+        Label:
+            id: city
+            color: 0,0,0,1
+            font_size: '15sp'
+            text: 'Город'
 <Lost_map>:
     MapView:
+        id: map
         lat:55.818
         lon:37.3317
-        zoom:10
+        zoom:14
         pos_hint: {'x': 0, 'y': 0}
         size_hint: 1, 1
-        map_source: "osm"
-        get_lon: root.get_lon(self.zoom,self.x)
-        MapMarkerPopup:
-            source: 'Image\\marker.png'
-            lat:55.818
-            lon:37.3317
-            PopupMarker:
-                size_hint: None, None
-                size: 200, 200
+        map_source: 'osm'
 <Lost_list>:
     BoxLayout:
         orientation: "vertical"
         ScrollView:
+            id: container_lost
             do_scroll_x: False
             do_scroll_y: True
             bar_color: [0, 0, 0, 1]
-            MDBoxLayout:
-                id: container_lost
-                orientation: "vertical"
-                adaptive_height: True
-                spacing:dp(25)
 
 <StartScreen>:
     FloatLayout:
@@ -160,7 +172,6 @@ WindowManager:
             text: 'Войти/Зарегистрироваться'   
             on_release: 
                 app.root.current = "login"
-                app.root.transition.direction = "left"
         Image:
             source: 'Image\\logo.png'
             pos_hint: {'x': 0.2, 'y': 0.4}
@@ -175,9 +186,9 @@ WindowManager:
             size_hint: 0.96, 0.05
             font_size: '20sp'
             text: 'Войти без регистрации'
-            on_release: 
+            on_release:
+                root.add_markers() 
                 app.root.current = "main"
-                app.root.transition.direction = "left"
 <MainScreen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -233,62 +244,62 @@ WindowManager:
                 points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
         #MDFloatLayout:
 
-    MDIconButton:
-        id: nav_icon1
-        icon: 'paw'
-        ripple_scale: 0.8
-        pos_hint: {'x': 0.05, 'y': 0.01}
-        user_font_size: sp(36)
-        theme_text_color: 'Custom'
-        text_color: 0.34,0.71,0.98,1
-        on_release:
-            #app.root.transition = NoTransition()
-            app.change_color(self)
-            app.root.current = 'main'
-    MDIconButton:
-        id: nav_icon2
-        icon: 'clipboard-check-outline'
-        ripple_scale: 0.8
-        pos_hint: {'x': 0.25, 'y': 0.01}
-        user_font_size: dp(36)
-        theme_text_color: 'Custom'
-        text_color: 0,0,0,1
-        on_release:
-            app.change_color(self)
-            app.root.current = 'service_list'
-    MDIconButton:
-        id: nav_icon3
-        icon: 'plus-circle-outline'
-        ripple_scale: 0.8
-        pos_hint: {'x': 0.45, 'y': 0.01}
-        user_font_size: dp(36)
-        theme_text_color: 'Custom'
-        text_color: 0,0,0,1
-        on_release:
-            app.change_color(self)
-            app.root.current = 'add'
-    MDIconButton:
-        id: nav_icon4
-        icon: 'bell-outline'
-        ripple_scale: 0.8
-        pos_hint: {'x': 0.65, 'y': 0.01}
-        user_font_size: dp(36)
-        theme_text_color: 'Custom'
-        text_color: 0,0,0,1
-        on_release:
-            app.change_color(self)
-            app.transition_notif()
-    MDIconButton:
-        id: nav_icon5
-        icon: 'account-circle-outline'
-        ripple_scale: 0.8
-        pos_hint: {'x': 0.84, 'y': 0.01}
-        user_font_size: dp(36)
-        theme_text_color: 'Custom'
-        text_color: 0,0,0,1
-        on_release:
-            app.change_color(self)
-            app.transition_profile()
+        MDIconButton:
+            id: nav_icon1
+            icon: 'paw'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.05, 'y': 0.01}
+            user_font_size: sp(36)
+            theme_text_color: 'Custom'
+            text_color: 0.34,0.71,0.98,1
+            on_release:
+                #app.root.transition = NoTransition()
+                app.change_color(self)
+                app.root.current = 'main'
+        MDIconButton:
+            id: nav_icon2
+            icon: 'clipboard-check-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.25, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.root.current = 'service_list'
+        MDIconButton:
+            id: nav_icon3
+            icon: 'plus-circle-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.45, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.root.current = 'add'
+        MDIconButton:
+            id: nav_icon4
+            icon: 'bell-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.65, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.transition_notif()
+        MDIconButton:
+            id: nav_icon5
+            icon: 'account-circle-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.84, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.transition_profile()
 <Sign_in>:
     BoxLayout:
         orientation: 'vertical'
@@ -298,16 +309,16 @@ WindowManager:
         MDTextField:
             id: email_sign
             hint_text: "Email"
-            mode: "rectangle"
+            mode: "line"
         MDTextField:
             id: passw_sign
             hint_text: "Пароль"
-            mode: "rectangle"
+            mode: "line"
             password: True
             password_mask: '•'
     MDIconButton:
         icon: 'eye-off'
-        pos_hint: {'x': 0.9, 'y': 0.798}
+        pos_hint: {'x': 0.9, 'y': 0.81}
         user_font_size: dp(24)
         on_release: root.ids.passw_sign.password = False if root.ids.passw_sign.password else True
         on_release: self.icon = 'eye' if root.ids.passw_sign.password else 'eye-off'
@@ -430,9 +441,9 @@ WindowManager:
     Label:
         id: requirements_pass
         font_size: '11sp'
-        color: 1,0,0,1
-        text: 'Пароль должен содержать хотя бы одно число,\nхотя бы одну латинскую букву в нижнем и верхнем регистре регистре,\nможет содержать @#$%-_.\nДлина составляет от 6 до 20 символов'
-        pos_hint: {'center_x': 0.305, 'center_y': 0.32}
+        color: 0,0,0,1
+        text: 'Пароль должен содержать хотя бы одно число,\nхотя бы одну латинскую букву в нижнем и верхнем регистре,\nможет содержать @#$%-_.\nДлина составляет от 6 до 20 символов'
+        pos_hint: {'center_x': 0.34, 'center_y': 0.32}
         disabled: False
     MDIconButton:
         icon: 'eye-off'
@@ -491,12 +502,12 @@ WindowManager:
         MDTabs:
             tab_hint_x: True
             allow_stretch: True
-            tab_indicator_type: 'round'
+            tab_indicator_type: 'line'
             tab_indicator_anim: True
-            background_color: 0,0,0,0.4
+            background_color: 1,1,1,1
             text_color_normal: 0,0,0,1
             text_color_active: 0,0,0,1
-            indicator_color: 1,1,1,1
+            indicator_color: 0.34,0.71,0.98,1
             lock_swiping: True
             Sign_in:
                 icon: 'account-key'
@@ -593,7 +604,7 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'notif_noreg'
+                    app.transition_notif()
             MDIconButton:
                 id: nav_icon5
                 icon: 'account-circle-outline'
@@ -606,7 +617,6 @@ WindowManager:
                     app.change_color(self)
                     app.root.transition.direction = "left"
                     app.transition_profile()
-
 <Profile_NoReg>:
     FloatLayout:
         size_hint: 1,0.05
@@ -699,8 +709,8 @@ WindowManager:
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'notif_noreg'
                     app.root.transition.direction = "right"
+                    app.transition_notif()
             MDIconButton:
                 id: nav_icon5
                 icon: 'account-circle-outline'
@@ -865,6 +875,7 @@ WindowManager:
         pos_hint: {'center_x': 0.1, 'center_y': 0.9}
         disabled: True
     MapView:
+        id: ad_map
         lat:55.818
         lon:37.3317
         zoom:10
@@ -947,6 +958,194 @@ WindowManager:
         font_size: '17sp'
         user_font_size: dp(36)
         pos_hint: {'x':0.28,'y':0.03}
+        on_press: app.root.current = 'comment'
+<Comment_card>:
+    size_hint_y: None
+    height: 100
+    size_hint_x: None
+    width: 500
+    orientation: 'vertical'
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    Label:
+        id: user
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 1, 0.5
+        text_size: self.width, self.height
+        halign: 'right'
+        text: 'Мария'
+    Label:
+        id: text_card
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 1, None
+        text_size: self.width, None
+        halign: 'center'
+    Label:
+        id: date_card
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 1, None
+        text_size: self.width, None
+        halign: 'center'
+<Comment_Screen>:
+    on_enter: root.download_data()
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Комментарии'
+        Label:
+            id: count_card
+            pos_hint: {'x':0.3,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'0'
+            opacity: 0
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "ad"
+                app.root.transition.direction = "right"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 1, 0.95
+        pos_hint: {'center_x': 0.5, 'y': 0}
+        ScrollView:
+            id: sv
+            do_scroll_x: False
+            bar_color: [0, 0, 0, 1]
+            size_hint: 1, 0.95
+            FloatLayout:
+                id: scroll
+                size_hint_y: None
+                height: 700
+                GridLayout:
+                    cols: 1
+                    size_hint: 0.65, 0.95
+                    id: comment_container
+                    pos_hint: {'center_x': 0.5, 'y': 0.05}
+                    spacing: dp(10)
+    FloatLayout:
+        size_hint: 1, 0.05
+        pos_hint: {'center_x': 0.5, 'y': 0}
+        MDTextFieldRect:
+            id: text_comment
+            multiline: True
+            size_hint: 0.85, 0.8
+            pos_hint: {'center_x': 0.45, 'center_y': 0.5}
+        MDIconButton:
+            icon: 'arrow-right'
+            icon_size: dp(22)
+            pos_hint: {'center_x': 0.95, 'center_y': 0.5}
+            md_bg_color: 0.34,0.71,0.98,1
+            on_press: root.send_comment()
+<Reviews_card>:
+    size_hint_y: None
+    height: 100
+    size_hint_x: None
+    width: 500
+    orientation: 'vertical'
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    Label:
+        id: user
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 1, 0.5
+        text_size: self.width, self.height
+        halign: 'right'
+        valign: 'top'
+        text: 'Мария'
+    Label:
+        id: text_card
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 1, None
+        text_size: self.width, None
+        halign: 'center'
+        text: 'Доброго времени суток. Помогите пожалуйста найти домашнего питомца.'
+    Label:
+        id: date_card
+        color: 0,0,0,1
+        font_size: '15sp'
+        size_hint: 1, None
+        text_size: self.width, None
+        halign: 'center'
+<Review_Screen>:
+    on_enter: root.download_data()
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Отзывы'
+        Label:
+            id: count_card
+            pos_hint: {'x':0.3,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'0'
+            opacity: 0
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "service"
+                app.root.transition.direction = "right"
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 1, 0.94
+        pos_hint: {'center_x': 0.5, 'y': 0}
+        ScrollView:
+            id: sv
+            do_scroll_x: False
+            bar_color: [0, 0, 0, 1]
+            size_hint: 1, 0.94
+            FloatLayout:
+                id: scroll
+                size_hint_y: None
+                height: 700
+                GridLayout:
+                    cols: 1
+                    size_hint: 0.65, 0.94
+                    id: review_container
+                    pos_hint: {'center_x': 0.5, 'y': 0.05}
+                    spacing: dp(10)
+    FloatLayout:
+        size_hint: 1, 0.05
+        pos_hint: {'center_x': 0.5, 'y': 0}
+        MDTextFieldRect:
+            id: text_review
+            multiline: True
+            size_hint: 0.85, 0.8
+            pos_hint: {'center_x': 0.45, 'center_y': 0.5}
+        MDIconButton:
+            icon: 'arrow-right'
+            icon_size: dp(22)
+            pos_hint: {'center_x': 0.95, 'center_y': 0.5}
+            md_bg_color: 0.34,0.71,0.98,1
+            on_press: root.send_review()
+            
 <Ad_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -1003,7 +1202,7 @@ WindowManager:
             id: card_image
             size_hint: 0.8,0.8
             pos_hint: {'center_x': .5, 'center_y': .5}
-            #source: 'Image\\service_card.png'
+            source: 'Image\\service_card.png'
         BoxLayout:
             orientation: 'vertical'
             size_hint: 1,0.7
@@ -1320,14 +1519,10 @@ WindowManager:
         orientation: "vertical"
         size_hint: 1,0.95
         ScrollView:
+            id: container_service
             do_scroll_x: False
             do_scroll_y: True
             bar_color: [0, 0, 0, 1]
-            MDBoxLayout:
-                id: container_service
-                orientation: "vertical"
-                adaptive_height: True
-                spacing:dp(25)
     NavigationBar:
         size_hint: 1,0.07
         pos_hint: {'x': 0, 'y': 0}
@@ -1345,8 +1540,8 @@ WindowManager:
                 id: nav_icon1
                 icon: 'paw'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.05, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.05, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0.34,0.71,0.98,1
                 on_release:
@@ -1358,8 +1553,8 @@ WindowManager:
                 id: nav_icon2
                 icon: 'clipboard-check-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.25, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.25, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
@@ -1369,8 +1564,8 @@ WindowManager:
                 id: nav_icon3
                 icon: 'plus-circle-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.45, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.45, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
@@ -1380,186 +1575,24 @@ WindowManager:
                 id: nav_icon4
                 icon: 'bell-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.65, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.65, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'notif_noreg'
+                    app.transition_notif()
             MDIconButton:
                 id: nav_icon5
                 icon: 'account-circle-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.84, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.84, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
                     app.transition_profile()
-<About_me>:
-    FloatLayout:
-        Label:
-            pos_hint: {'center_x': 0.1, 'center_y': 0.97}
-            color: 0,0,0,1
-            font_size: '18sp'
-            text:'С кем работаю:'
-        Label:
-            id: kind_pet_serv
-            pos_hint: {'center_x': 0.42, 'center_y': 0.97}
-            size_hint: 0.4, None
-            text_size: self.width, None
-            color: 0,0,0,1
-            font_size: '18sp'
-            text:'со всеми'
-        Label:
-            id: size_dog1_serv
-            pos_hint: {'center_x': 0.1, 'center_y': 0.9}
-            color: 0,0,0,1
-            font_size: '18sp'
-            text:'Размер собаки:'
-            disabled: False
-        Label:
-            id: size_dog2_serv
-            pos_hint: {'center_x': 0.42, 'center_y': 0.9}
-            color: 0,0,0,1
-            font_size: '18sp'
-            size_hint: 0.4, None
-            text_size: self.width, None
-            text:'маленькие и средние породы'
-            disabled: False
-        Label:
-            pos_hint: {'center_x': 0.06, 'center_y': 0.83}
-            color: 0,0,0,1
-            font_size: '18sp'
-            text:'Возраст:'
-        Label:
-            id: age_serv
-            pos_hint: {'center_x': 0.42, 'center_y': 0.83}
-            color: 0,0,0,1
-            size_hint: 0.4, None
-            text_size: self.width, None
-            font_size: '18sp'
-            text:'любой'
-        Label:
-            pos_hint: {'center_x': 0.18, 'center_y': 0.76}
-            color: 0,0,0,1
-            font_size: '18sp'
-            text:'Специальные возможности:'
-        Label:
-            id: medicine
-            pos_hint: {'center_x': 0.14, 'center_y': 0.74}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'- Давать лекарства'
-            disabled: False
-        Label:
-            id: injection
-            pos_hint: {'center_x': 0.13, 'center_y': 0.72}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'- Делать уколы'
-            disabled: False
-        Label:
-            id: control
-            pos_hint: {'center_x': 0.18, 'center_y': 0.7}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'- Круглосуточный контроль'
-            disabled: False
-        Label:
-            id: education
-            pos_hint: {'center_x': 0.24, 'center_y': 0.68}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'- Профильное образование'
-            disabled: False
-        Label:
-            id: name_education
-            pos_hint: {'center_x': 0.3, 'center_y': 0.68}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'Ветеринар'
-            disabled: False
-        Label:
-            pos_hint: {'center_x': 0.135, 'center_y': 0.65}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'Контактный телефон:'
-        Label:
-            id: phone_serv
-            pos_hint: {'center_x': 0.46, 'center_y': 0.65}
-            color: 0,0,0,1
-            size_hint: 0.4, None
-            text_size: self.width, None
-            font_size: '18sp'
-            text:'89209048314'
-        Label:
-            pos_hint: {'center_x': 0.1, 'center_y': 0.62}
-            color: 0,0,0,1
-            font_size: '17sp'
-            text:'Комментарий'
-        Label:
-            id: comment
-            color: 0,0,0,1
-            font_size: '15sp'
-            size_hint: 0.95, None
-            text_size: self.width, None
-            pos_hint: {'center_x': 0.5, 'center_y': 0.58}
-            text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
-<Reviews_card>:
-    size_hint_y: None
-    height: 100
-    size_hint_x: None
-    width: 500
-    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            id: user
-            color: 0,0,0,1
-            font_size: '15sp'
-            text_size: self.size
-            halign: 'right'
-            valign: 'bottom'
-            text: 'Мария'
-        Label:
-            id: text_card
-            color: 0,0,0,1
-            font_size: '15sp'
-            size_hint: 1, None
-            text_size: self.width, None
-            halign: 'center'
-            text: 'Доброго времени суток. Помогите пожалуйста найти домашнего питомца.'
-<Reviews>:
-    GridLayout:
-        id: review_container
-        size_hint: 1,0.8
-        #orientation: 'vertical'
-        pos_hint: {'center_x': 0.5, 'center_y': 0.55}
-        cols: 1
-        spacing: dp(10)
-        canvas.before:
-            Color:
-                rgba: (0.34,0.71,0.98,1)
-            Rectangle:
-                pos: self.pos
-                size: self.size
-    FloatLayout:
-        size_hint_y: 0.03
-        pos_hint: {'center_x': 0.5, 'center_y': 0.32}
-        MDTextFieldRect:
-            id: text_review
-            multiline: True
-            size_hint: 0.85, 0.8
-            pos_hint: {'center_x': 0.45, 'center_y': 0.5}
-        MDIconButton:
-            icon: 'arrow-right'
-            icon_size: dp(22)
-            pos_hint: {'center_x': 0.95, 'center_y': 0.5}
-            md_bg_color: 0.34,0.71,0.98,1
-            on_press: root.send_review()
 <Service_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -1611,6 +1644,13 @@ WindowManager:
                 font_size: '18sp'
                 text:'Фамилия/Name'
             Label:
+                id: date_service
+                pos_hint: {'center_x': 0.205, 'center_y': 0.88}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Фамилия/Name'
+                opacity: 0
+            Label:
                 id: address_service
                 pos_hint: {'center_x': 0.15, 'center_y': 0.86}
                 color: 0,0,0,1
@@ -1628,21 +1668,141 @@ WindowManager:
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость'
-            MDTabs:
-                tab_hint_x: True
-                allow_stretch: True
-                background_color: 1,1,1,1
-                text_color_normal: 0,0,0,1
-                text_color_active: 0,0,0,1
-                indicator_color: 0.34,0.71,0.98,1
-                lock_swiping: True
-                size_hint_x: 1
-                pos_hint: {'center_x': 0.5, 'center_y': 0.2}
-                About_me:
-                    title: 'О себе'
-                Reviews:
-                    id: review
-                    title: 'Отзывы'    
+            Label:
+                pos_hint: {'center_x': 0.1, 'center_y': 0.78}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'С кем работаю:'
+            Label:
+                id: kind_pet_serv
+                pos_hint: {'center_x': 0.42, 'center_y': 0.78}
+                size_hint: 0.4, None
+                text_size: self.width, None
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'со всеми'
+            Label:
+                id: size_dog1_serv
+                pos_hint: {'center_x': 0.1, 'center_y': 0.75}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Размер собаки:'
+                disabled: False
+            Label:
+                id: size_dog2_serv
+                pos_hint: {'center_x': 0.42, 'center_y': 0.75}
+                color: 0,0,0,1
+                font_size: '18sp'
+                size_hint: 0.4, None
+                text_size: self.width, None
+                text:'маленькие и средние породы'
+                disabled: False
+            Label:
+                pos_hint: {'center_x': 0.06, 'center_y': 0.7}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Возраст:'
+            Label:
+                id: age_serv
+                pos_hint: {'center_x': 0.42, 'center_y': 0.7}
+                color: 0,0,0,1
+                size_hint: 0.4, None
+                text_size: self.width, None
+                font_size: '18sp'
+                text:'любой'
+            Label:
+                pos_hint: {'center_x': 0.18, 'center_y': 0.68}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Специальные возможности:'
+            Label:
+                id: medicine
+                pos_hint: {'center_x': 0.14, 'center_y': 0.66}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'- Давать лекарства'
+                disabled: False
+            Label:
+                id: injection
+                pos_hint: {'center_x': 0.13, 'center_y': 0.64}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'- Делать уколы'
+                disabled: False
+            Label:
+                id: control
+                pos_hint: {'center_x': 0.18, 'center_y': 0.62}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'- Круглосуточный контроль'
+                disabled: False
+            Label:
+                id: education
+                pos_hint: {'center_x': 0.24, 'center_y': 0.6}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'- Профильное образование'
+                disabled: False
+            Label:
+                id: name_education
+                pos_hint: {'center_x': 0.4, 'center_y': 0.6}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Ветеринар'
+                disabled: False
+            Label:
+                pos_hint: {'center_x': 0.135, 'center_y': 0.58}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Контактный телефон:'
+            Label:
+                id: phone_serv
+                pos_hint: {'center_x': 0.46, 'center_y': 0.58}
+                color: 0,0,0,1
+                size_hint: 0.4, None
+                text_size: self.width, None
+                font_size: '18sp'
+                text:'89209048314'
+            Label:
+                pos_hint: {'center_x': 0.1, 'center_y': 0.56}
+                color: 0,0,0,1
+                font_size: '17sp'
+                text:'Комментарий'
+            Label:
+                id: comment
+                color: 0,0,0,1
+                font_size: '15sp'
+                size_hint: 0.95, None
+                text_size: self.width, None
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
+            MDFillRoundFlatIconButton:
+                icon: "comment-outline"
+                text: "Открыть комментарии"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                theme_icon_color: "Custom"
+                icon_color: 1, 1, 1, 1
+                md_bg_color: 0.34,0.71,0.98,1
+                font_size: '17sp'
+                user_font_size: dp(36)
+                pos_hint: {'x':0.28,'y':0.03}
+                on_press: app.root.current = 'review'
+            # MDTabs:
+            #     tab_hint_x: True
+            #     allow_stretch: True
+            #     background_color: 1,1,1,1
+            #     text_color_normal: 0,0,0,1
+            #     text_color_active: 0,0,0,1
+            #     indicator_color: 0.34,0.71,0.98,1
+            #     lock_swiping: True
+            #     size_hint_x: 1
+            #     pos_hint: {'center_x': 0.5, 'center_y': 0.2}
+            #     About_me:
+            #         title: 'О себе'
+            #     Reviews:
+            #         id: review
+            #         title: 'Отзывы'    
 
 <Profile_Screen>:
     on_enter: root.download_data()
@@ -1666,13 +1826,13 @@ WindowManager:
             pos_hint: {'x':-0.07,'y':0.15}
             color: 0,0,0,1
             font_size: '25sp'
-            text:'Name'
+            text:'Артём'
         Label:
             id: lname_profile
             pos_hint: {'x':0.07,'y':0.15}
             color: 0,0,0,1
             font_size: '25sp'
-            text:'SName'
+            text:'Хорев'
         MDRectangleFlatButton:
             text: 'Личные данные'
             theme_text_color: 'Custom'
@@ -1682,7 +1842,7 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.53}
+            pos_hint: {'x':0,'y':0.49}
             on_release:
                 app.root.current = 'data_personal'
         MDRectangleFlatButton:
@@ -1694,7 +1854,10 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.46}
+            pos_hint: {'x':0,'y':0.42}
+            on_release:
+                root.download_my_ad()
+                app.root.current = 'my_ad'
         MDRectangleFlatButton:
             text: 'Мои услуги'
             theme_text_color: 'Custom'
@@ -1704,27 +1867,30 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.39}
-        MDRectangleFlatButton:
-            text: 'Выбранные услуги'
-            theme_text_color: 'Custom'
-            text_color: 0, 0, 0, 1
-            line_color: 0, 0, 0, 1
-            size_hint: 1,None
-            anchor_x: 'left'
-            padding: [dp(16),dp(0)]
-            font_size: '17sp'
-            pos_hint: {'x':0,'y':0.32}
-        MDRectangleFlatButton:
-            theme_text_color: 'Custom'
-            text_color: 0, 0, 0, 1
-            line_color: 0, 0, 0, 1
-            text: 'Выбранные объявления'
-            size_hint: 1,None
-            anchor_x: 'left'
-            padding: [dp(16),dp(0)]
-            font_size: '17sp'
-            pos_hint: {'x':0,'y':0.25}
+            pos_hint: {'x':0,'y':0.35}
+            on_release:
+                root.download_my_service()
+                app.root.current = 'my_service'
+        # MDRectangleFlatButton:
+        #     text: 'Выбранные услуги'
+        #     theme_text_color: 'Custom'
+        #     text_color: 0, 0, 0, 1
+        #     line_color: 0, 0, 0, 1
+        #     size_hint: 1,None
+        #     anchor_x: 'left'
+        #     padding: [dp(16),dp(0)]
+        #     font_size: '17sp'
+        #     pos_hint: {'x':0,'y':0.32}
+        # MDRectangleFlatButton:
+        #     theme_text_color: 'Custom'
+        #     text_color: 0, 0, 0, 1
+        #     line_color: 0, 0, 0, 1
+        #     text: 'Выбранные объявления'
+        #     size_hint: 1,None
+        #     anchor_x: 'left'
+        #     padding: [dp(16),dp(0)]
+        #     font_size: '17sp'
+        #     pos_hint: {'x':0,'y':0.25}
         MDRectangleFlatButton:
             text: 'О приложении'
             theme_text_color: 'Custom'
@@ -1734,7 +1900,8 @@ WindowManager:
             anchor_x: 'left'
             padding: [dp(16),dp(0)]
             font_size: '17sp'
-            pos_hint: {'x':0,'y':0.18}
+            #pos_hint: {'x':0,'y':0.18}
+            pos_hint: {'x':0,'y':0.28}
         MDRectangleFlatIconButton:
             icon: "exit-to-app"
             text: "Выйти из аккаунта"
@@ -1744,6 +1911,7 @@ WindowManager:
             theme_icon_color: "Custom"
             icon_color: 0, 0, 0, 1
             pos_hint: {'x':0.65,'y':0.01}
+            #pos_hint: {'x':0.65,'y':0.01}
     NavigationBar:
         size_hint: 1,0.07
         pos_hint: {'x': 0, 'y': 0}
@@ -1760,8 +1928,8 @@ WindowManager:
                 id: nav_icon1
                 icon: 'paw'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.05, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.05, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0.34,0.71,0.98,1
                 on_release:
@@ -1773,8 +1941,8 @@ WindowManager:
                 id: nav_icon2
                 icon: 'clipboard-check-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.25, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.25, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
@@ -1785,8 +1953,8 @@ WindowManager:
                 id: nav_icon3
                 icon: 'plus-circle-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.45, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.45, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
@@ -1796,20 +1964,20 @@ WindowManager:
                 id: nav_icon4
                 icon: 'bell-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.65, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.65, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
                     app.change_color(self)
-                    app.root.current = 'notif_noreg'
                     app.root.transition.direction = "right"
+                    app.transition_notif()
             MDIconButton:
                 id: nav_icon5
                 icon: 'account-circle-outline'
                 ripple_scale: 0.8
-                pos_hint: {'x': 0.84, 'y': -0.1}
-                user_font_size: dp(48)
+                pos_hint: {'x': 0.84, 'y': 0.1}
+                user_font_size: dp(36)
                 theme_text_color: 'Custom'
                 text_color: 0,0,0,1
                 on_release:
@@ -1898,9 +2066,9 @@ WindowManager:
     Label:
         id: requirements_pass
         font_size: '11sp'
-        color: 1,0,0,1
-        text: 'Пароль должен содержать:\n- хотя бы одно число\n- хотя бы одну латинскую букву в нижнем и верхнем регистре регистре\n- может содержать @#$%-_.\n- длина составляет от 6 до 20 символов'
-        pos_hint: {'center_x': 0.31, 'center_y': 0.52}
+        color: 0,0,0,1
+        text: 'Пароль должен содержать:\n- хотя бы одно число\n- хотя бы одну латинскую букву в нижнем и верхнем регистре\n- может содержать @#$%-_.\n- длина составляет от 6 до 20 символов'
+        pos_hint: {'center_x': 0.34, 'center_y': 0.52}
         disabled: False
     RoundedButton:
         id: btn_save
@@ -1910,7 +2078,74 @@ WindowManager:
         color: 0,0,0,1
         text: root.change
         on_press: root.check_field()
-        
+<My_Ad_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Мои объявления'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "profile"
+                app.root.transition.direction = "right"
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 1,0.95
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_color: [0, 0, 0, 1]
+            MDBoxLayout:
+                id: container_lost
+                orientation: "vertical"
+                adaptive_height: True
+                spacing:dp(25)
+<My_Service_Screen>:  
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Мои услуги'
+        MDIconButton:
+            icon: 'arrow-left'
+            pos_hint: {'x': 0, 'y': -0.1}
+            user_font_size: dp(24)
+            on_release:             
+                app.root.current = "profile"
+                app.root.transition.direction = "right"
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 1,0.95
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            bar_color: [0, 0, 0, 1]
+            MDBoxLayout:
+                id: container_service
+                orientation: "vertical"
+                adaptive_height: True
+                spacing:dp(25)     
 <Personal_Data>:
     on_enter: root.download_data()
     FloatLayout:
@@ -1926,7 +2161,7 @@ WindowManager:
         MDIconButton:
             id: profile_icon
             icon: 'Image\\def_img_profile.png'
-            user_font_size: '120sp'
+            user_font_size: '110sp'
             #size_hint: 0.2,0.2
             pos_hint: {'x':0.4,'y':0.65}
             on_press: root.download_image()
@@ -1937,13 +2172,13 @@ WindowManager:
             spacing: '10dp'
             MDTextField:
                 id: name_pd
-                text: 'Артём'
+                text: 'Name'
                 color_mode: 'custom'
                 text_color: 0,0,0,1
                 mode: "line"
             MDTextField:
                 id: lname_pd
-                text: 'Хорев'
+                text: 'Lname'
                 text_color: 0,0,0,1
                 mode: "line"
             # MDTextField:
@@ -1953,12 +2188,12 @@ WindowManager:
             #     mode: "line"
             MDTextField:
                 id: email_pd
-                text: 'art.nindzya.00@mail.ru'
+                text: 'Email'
                 text_color: 0,0,0,1
                 mode: "line"
             MDTextField:
                 id: phone_pd
-                text: '89209048314'
+                text: 'Phone number'
                 text_color: 0,0,0,1
                 mode: "line"
         RoundedButton:
@@ -1966,27 +2201,27 @@ WindowManager:
             size_hint: 0.11, 0.05
             font_size: '15sp'   
             text: 'Назад'
-            on_release: 
+            on_release:
+                app.root.transition.direction = "right" 
                 app.root.current = "profile"
-                app.root.transition.direction = "right"
         RoundedButton:
             pos_hint: {'x': 0.68, 'y': 0.16}
             size_hint: 0.28, 0.05
             font_size: '15sp'   
             text: root.change
-            on_release: 
+            on_release:
+                app.root.transition.direction = "left" 
                 app.root.current = "change_password"
-                app.root.transition.direction = "left"
         RoundedButton:
             pos_hint: {'x': 0.22, 'y': 0.02}
             size_hint: 0.6, 0.05
             font_size: '20sp'
             color: 0,0,0,1
             text: 'Сохранить'
-            on_release: 
+            on_release:
+                root.save_change()
+                app.root.transition.direction = "right" 
                 app.root.current = "profile"
-                app.root.transition.direction = "right"
-
 <Add_see_card>:
     size_hint: 0.7,0.05
     BoxLayout:
@@ -2084,6 +2319,7 @@ WindowManager:
             ripple_color: (0.34,0.71,0.98,0.1)
             on_press: app.root.current = 'add_see'
         Add_lost_card:
+            id: add_lost_card
             ripple_behavior: True
             line_color: (0,0,0,0.5)
             md_bg_color: (0.34,0.71,0.98,1)
@@ -2206,7 +2442,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Фильтры'
+            text:'Нашел'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -2329,7 +2565,13 @@ WindowManager:
                 on_press: root.download_image()
             MDLabel:
                 id: img
-                pos_hint: {'x': 0.2, 'y': -0.1}
+                pos_hint: {'x': 0.08, 'y': 0.6}
+                color: 0,0,0,1
+                font_size: '12sp'
+                opacity: 0
+            Label:
+                id: path_img
+                pos_hint: {'center_x': 0.3, 'center_y': 0.36}
                 color: 0,0,0,1
                 font_size: '12sp'
                 opacity: 0
@@ -2361,7 +2603,7 @@ WindowManager:
                 font_size: '20sp'
                 color: 0,0,0,1
                 text: 'Добавить'
-                on_release: root.apply_filter()
+                on_release: root.add_see()
 <Add_Lost_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -2376,7 +2618,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Фильтры'
+            text:'Потерял'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -2505,6 +2747,12 @@ WindowManager:
                 color: 0,0,0,1
                 font_size: '12sp'
                 opacity: 0
+            Label:
+                id: path_img
+                pos_hint: {'center_x': 0.3, 'center_y': 0.36}
+                color: 0,0,0,1
+                font_size: '12sp'
+                opacity: 1
             MDLabel:
                 pos_hint: {'x': 0.08, 'y': -0.25}
                 color: 0,0,0,1
@@ -2537,7 +2785,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Фильтры'
+            text:'Передержка'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -2848,7 +3096,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Фильтры'
+            text:'Няня'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -3125,7 +3373,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Фильтры'
+            text:'Выгул'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -3253,3 +3501,86 @@ WindowManager:
                 color: 0,0,0,1
                 text: 'Применить'
                 on_release: root.add()
+<Notification_Screen>:
+    FloatLayout:
+        size_hint: 1,0.05
+        pos_hint: {'x':0,'y':0.95}
+        canvas.before:
+            Color:
+                rgba: (0.34,0.71,0.98,1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Label:
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Уведомления'
+    NavigationBar:
+        size_hint: 1,0.07
+        pos_hint: {'x': 0, 'y': 0}
+        #elevation: 20
+        md_bg_color: 1,1,1,1
+        canvas:
+            Color:
+                rgba: (0,0,0,0.5)
+            Line:
+                points: self.x, self.y+self.height, self.x+self.width, self.y+self.height
+        #MDFloatLayout:
+
+        MDIconButton:
+            id: nav_icon1
+            icon: 'paw'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.05, 'y': 0.01}
+            user_font_size: sp(36)
+            theme_text_color: 'Custom'
+            text_color: 0.34,0.71,0.98,1
+            on_release:
+                #app.root.transition = NoTransition()
+                app.change_color(self)
+                app.root.current = 'main'
+        MDIconButton:
+            id: nav_icon2
+            icon: 'clipboard-check-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.25, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.root.current = 'service_list'
+        MDIconButton:
+            id: nav_icon3
+            icon: 'plus-circle-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.45, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.root.current = 'add'
+        MDIconButton:
+            id: nav_icon4
+            icon: 'bell-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.65, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.transition_notif()
+        MDIconButton:
+            id: nav_icon5
+            icon: 'account-circle-outline'
+            ripple_scale: 0.8
+            pos_hint: {'x': 0.84, 'y': 0.01}
+            user_font_size: dp(36)
+            theme_text_color: 'Custom'
+            text_color: 0,0,0,1
+            on_release:
+                app.change_color(self)
+                app.transition_profile()

@@ -3,12 +3,13 @@ import kivy
 from kivymd.app import MDApp
 from kivy.app import App
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy_garden.mapview import MapView
+from kivy_garden.mapview import MapView,MapMarkerPopup,MapMarker
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.behaviors import FakeRectangularElevationBehavior
 from kivymd.uix.behaviors import RoundedRectangularElevationBehavior
 from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivymd.uix.tab import MDTabsBase
 from kivy.uix.widget import Widget
@@ -26,6 +27,7 @@ from geopy.geocoders import Nominatim
 from plyer import gps
 from kivy.uix.popup import Popup
 import io
+import datetime
 from kivy.core.image import Image as CoreImage 
 #from android.permissions import request_permissions, Permission
 
@@ -66,18 +68,122 @@ def query(query,type,count='one',photo=None):
           except Error as e:
                print(f"The error '{e}' occurred")
 class StartScreen(Screen):
-     pass
+     global current_user
+     def on_location(self, **kwargs):
+          #self.lat = kwargs['lat']
+          #self.lon = kwargs['lon']
+          self.marker = MapMarker()
+          self.marker.lat = 55.57255244187822#self.lat
+          self.marker.lon = 42.03819546003002#self.lon
+          self.marker.source = r'Image\me_marker.png'
+          self.app.root.ids.mainscreen.ids.lost_map.ids.map.lat = 55.57255244187822#self.lat
+          self.app.root.ids.mainscreen.ids.lost_map.ids.map.lon = 42.03819546003002#self.lon
+          self.app.root.ids.mainscreen.ids.lost_map.ids.map.add_marker(self.marker)
+     def gps_locate(self):
+          gps.configure(on_location=self.on_location)
+          gps.start(1000, 0)
+     def add_markers(self):
+          # request_permissions([Permission.ACCESS_COARSE_LOCATION, Permission.ACCESS_FINE_LOCATION])
+          self.app = MDApp.get_running_app()
+          self.count = query(f'SELECT COUNT(*) FROM AD','select')
+          self.answer = query(f'SELECT * FROM AD ORDER BY ID DESC','select','all')
+          self.on_location()
+          for i in range(self.count):
+          #for i in range(1):
+               self.marker = MapMarkerPopup()
+               self.marker_popup = PopupMarker()
+               self.marker_popup.size_hint = None,None
+               self.marker_popup.size = 250,250
+               self.marker_popup.ids.gender_marker.text = query(f'SELECT GENDER FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.bdata = query(f'SELECT PHOTO FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.data = io.BytesIO(self.bdata)
+               self.marker_popup.ids.img_marker.texture = CoreImage(self.data, ext = "png").texture
+               self.lat = query(f'SELECT LAT FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.lon = query(f'SELECT LON FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.marker.lat = self.lat
+               self.marker.lon = self.lon
+               self.marker.source = r'Image\marker.png'
+               self.marker.add_widget(self.marker_popup)
+               self.app.root.ids.mainscreen.ids.lost_map.ids.map.add_marker(self.marker)
 class MainScreen(Screen):
      pass
 class LoginScreen(Screen):
      pass
 class Notification_NoReg(Screen):
      pass
+class Notification_Screen(Screen):
+     pass
 class Profile_NoReg(Screen):
      pass
 class Service_Filter(Screen):
-     def apply_filter(self):
+     global current_user
+     def display_service(self, card, touch):
           self.app = MDApp.get_running_app()
+          self.create_date = card.ids.date_service_card.text
+          self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.data = io.BytesIO(self.bdata)
+          self.app.root.ids.service_screen.ids.scc.ids.service_image.texture = CoreImage(self.data, ext = "png").texture
+          self.fname = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.address = query(f'SELECT ADDRESS FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.price = query(f'SELECT PRICE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          
+          self.app.root.ids.service_screen.ids.name_service.text = self.fname + ' ' + self.lname
+          self.app.root.ids.service_screen.ids.address_service.text = self.address
+          self.app.root.ids.service_screen.ids.kind_service.text = self.kind
+          self.app.root.ids.service_screen.ids.price_service.text = self.price
+          self.app.root.ids.service_screen.ids.date_service.text = self.create_date
+          
+          self.kind_pet = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM SERVICE WHERE CREATE_DATE = "{self.create_date}")','select')
+          self.age = query(f'SELECT AGE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.phone_number = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.comment = query(f'SELECT ABOUT_ME FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          if self.kind_pet == 'Собака' or self.kind_pet == 'Все':
+               self.size_dog = query(f'SELECT SIZE_DOG FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.app.root.ids.service_screen.ids.size_dog2_serv.text = self.size_dog
+               self.app.root.ids.service_screen.ids.age_serv.text = self.age
+               self.app.root.ids.service_screen.ids.phone_serv.text = self.phone_number
+               self.app.root.ids.service_screen.ids.comment.text = self.comment
+               self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+               if not self.medicine:
+                    self.app.root.ids.service_screen.ids.medicine.disabled = True
+               if not self.injection:
+                    self.app.root.ids.service_screen.ids.injection.disabled = True
+               if not self.control:
+                    self.app.root.ids.service_screen.ids.control.disabled = True
+               if not self.education:
+                    self.app.root.ids.service_screen.ids.education.disabled = True
+               else:
+                    self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+                    self.app.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
+               self.app.root.current = 'service'
+          if self.kind_pet == 'Кошка':
+               self.app.root.ids.service_screen.ids.size_dog1_serv.disabled = True
+               self.app.root.ids.service_screen.ids.size_dog2_serv.disabled = True
+               self.app.root.ids.service_screen.ids.age_serv.text = self.age
+               self.app.root.ids.service_screen.ids.phone_serv.text = self.phone_number
+               self.app.root.ids.service_screen.ids.comment.text = self.comment
+               self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+               if not self.medicine:
+                    self.app.root.ids.service_screen.ids.medicine.disabled = True
+               if not self.injection:
+                    self.app.root.ids.service_screen.ids.injection.disabled = True
+               if not self.control:
+                    self.app.root.ids.service_screen.ids.control.disabled = True
+               if not self.education:
+                    self.app.root.ids.service_screen.ids.education.disabled = True
+               else:
+                    self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+                    self.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
+               self.app.root.current = 'service'
+     def apply_filter(self):
           self.city = self.ids.city.text
           if self.ids.kind_cb_overexposure.active:
                self.type_serv = '1'
@@ -162,8 +268,32 @@ class Service_Filter(Screen):
                          self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
                     if not self.ids.from_price.text and  not self.ids.to_price.text:
                          self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND SIZE_DOG = {self.size_dog} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education}','select','all')
+               self.count = query(f'SELECT COUNT(*) FROM SERVICE','select')
+               self.answer = query('SELECT * FROM SERVICE ORDER BY ID DESC','select','all')
+               self.service_container = MDBoxLayout(orientation="vertical",adaptive_height=True,spacing='25dp')
+               for i in range(self.count):
+               #for i in range(1):
+                    self.card = Service_card()
+                    self.create_date = query(f'SELECT CREATE_DATE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.data = io.BytesIO(self.bdata)
+                    self.card.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
+                    self.fname = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.price = query(f'SELECT PRICE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.card.ids.name_service_card.text = self.fname + ' ' + self.lname
+                    self.card.ids.city_service_card.text = self.city
+                    self.card.ids.price_service_card.text = self.price
+                    self.card.ids.kind_service_card.text = self.kind
+                    self.card.ids.date_service_card.text = self.create_date
+                    self.card.bind(on_touch_down=self.display_service)
+                    self.service_container.add_widget(self.card)
+               self.app.root.ids.service_list_screen.ids.container_service.clear_widgets()
+               self.app.root.ids.service_list_screen.ids.container_service.add_widget(self.service_container)
           else:
-               if self.sity:
+               if self.city:
                     if self.ids.from_price.text and self.ids.to_price.text:
                          self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE BETWEEN {self.ids.from_price.text} AND {self.ids.to_price.text} AND CITY = {self.city}','select','all')
                     if self.ids.from_price.text and not self.ids.to_price.text:
@@ -181,6 +311,30 @@ class Service_Filter(Screen):
                          self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education} AND PRICE < {self.ids.from_price.text}','select','all')
                     if not self.ids.from_price.text and  not self.ids.to_price.text:
                          self.filter_id = query(f'SELECT ID FROM SERVICE WHERE KIND = {self.type_serv} AND KIND_PETS = {self.kind} AND AGE = {self.age} AND MEDICINE = {self.medicine} AND INJECTION = {self.injection} AND CONTROL = {self.control} AND EDUCATION = {self.education}','select','all')
+               self.count = query(f'SELECT COUNT(*) FROM SERVICE','select')
+               self.answer = query('SELECT * FROM SERVICE ORDER BY ID DESC','select','all')
+               self.service_container = MDBoxLayout(orientation="vertical",adaptive_height=True,spacing='25dp')
+               for i in range(self.count):
+               #for i in range(1):
+                    self.card = Service_card()
+                    self.create_date = query(f'SELECT CREATE_DATE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.data = io.BytesIO(self.bdata)
+                    self.card.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
+                    self.fname = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.price = query(f'SELECT PRICE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.card.ids.name_service_card.text = self.fname + ' ' + self.lname
+                    self.card.ids.city_service_card.text = self.city
+                    self.card.ids.price_service_card.text = self.price
+                    self.card.ids.kind_service_card.text = self.kind
+                    self.card.ids.date_service_card.text = self.create_date
+                    self.card.bind(on_touch_down=self.display_service)
+                    self.service_container.add_widget(self.card)
+               self.app.root.ids.service_list_screen.ids.container_service.clear_widgets()
+               self.app.root.ids.service_list_screen.ids.container_service.add_widget(self.service_container)
 class Lost_Filter(Screen):
      def visible_btn_reset(self,dt):
           if self.ids.btn_reset.opacity == 1:
@@ -189,6 +343,29 @@ class Lost_Filter(Screen):
           else:
                self.ids.btn_reset.opacity = 1
                self.ids.btn_reset.disabled = False
+     def display_ad(self, card, touch):
+          self.create_date = card.ids.card_date.text
+          self.bdata = query(f'SELECT PHOTO FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.data = io.BytesIO(self.bdata)
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_image.texture = CoreImage(self.data, ext = "png").texture
+          self.lat = query(f'SELECT LAT FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.lon = query(f'SELECT LON FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.kind = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM AD WHERE CREATE_DATE = "{self.create_date}")','select')
+          self.gender = query(f'SELECT GENDER FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.comment = query(f'SELECT TEXT FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.fname = query(f'SELECT FIRST_NAME FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.phone_number = query(f'SELECT PHONE_NUMBER FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_date.text = self.create_date
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_map.lat = self.lat
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_map.lon = self.lon
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lat = self.lat
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lon = self.lon
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_kind.text = self.kind
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_gender.text = self.gender
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_text.text = self.comment
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_name.text = self.fname
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_phone.text = self.phone_number
+          self.root.current = 'ad'
      def apply_filter(self):
           self.app = MDApp.get_running_app()
           #self.app.root.ids.ad_screen.ids.ad_container.ids.ad_date.text
@@ -218,19 +395,34 @@ class Lost_Filter(Screen):
           if not self.ids.gender_cb_wom.active and not self.ids.gender_cb_man.active:
                self.gender = '"Мальчик" OR "Девочка" OR "Неизвестно"'
           if self.city:
-               self.filter_id = query(f'SELECT ID FROM AD WHERE TYPE = {self.type} AND KIND_PETS = {self.kind} AND GENDER = {self.gender} AND CITY = {self.city}','select','all')
+               self.filter_id = query(f'SELECT ID FROM AD WHERE (TYPE = {self.type}) AND (KIND_PETS = {self.kind}) AND (GENDER = {self.gender}) AND (CITY = "{self.city}")','select','all')
           else:
-               self.filter_id = query(f'SELECT ID FROM AD WHERE TYPE = {self.type} AND KIND_PETS = {self.kind} AND GENDER = {self.gender}','select','all')
+               self.filter_id = query(f'SELECT ID FROM AD WHERE (TYPE = {self.type}) AND (KIND_PETS = {self.kind}) AND (GENDER = {self.gender})','select','all')
+          self.container = MDBoxLayout(orientation="vertical",adaptive_height=True,spacing='25dp')
           for i in range(len(self.filter_id)):
                self.card = Lost_card()
+               self.bdata = query(f'SELECT PHOTO FROM AD WHERE ID = {self.filter_id[i][0]}','select')
+               self.data = io.BytesIO(self.bdata)
+               self.card.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
                self.date = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.filter_id[i][0]}','select')
                self.gender = query(f'SELECT GENDER FROM AD WHERE ID = {self.filter_id[i][0]}','select')
-               self.type = query(f'SELECT NAME FROM TYPE_AD WHERE ID = (SELECT TYPE FROM AD WHERE ID = {self.filter_id[i][0]}))','select')
-               self.card.ids.card_date.text = self.date
+               self.type = query(f'SELECT TYPE FROM AD WHERE ID = {self.filter_id[i][0]}','select')
+               self.city = query(f'SELECT CITY FROM AD WHERE ID = {self.filter_id[i][0]}','select')
+               self.card.ids.card_date.text = str(self.date)
                self.card.ids.gender.text = self.gender
-               self.card.ids.type.text = self.type
-               self.card.bind(on_touch_down=self.app.display_ad)
-               self.app.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(self.card)
+               if self.type == 1 and self.gender == 'Мальчик':
+                    self.card.ids.type.text = 'Пропал'
+               elif self.type == 1 and self.gender == 'Девочка':
+                    self.card.ids.type.text = 'Пропала'
+               if self.type == 2 and self.gender == 'Мальчик':
+                    self.card.ids.type.text = 'Замечен'
+               elif self.type == 2 and self.gender == 'Девочка':
+                    self.card.ids.type.text = 'Замечена'
+               self.card.ids.city.text = self.city
+               self.card.bind(on_touch_down=self.display_ad)
+               self.container.add_widget(self.card)
+          self.app.root.ids.mainscreen.ids.lost_list.ids.container_lost.clear_widgets()
+          self.app.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(self.container)
           self.app.root.current = 'main'
           Clock.schedule_once(self.visible_btn_reset, 0.5)
 
@@ -242,26 +434,222 @@ class Lost_Filter(Screen):
           
 class Ad_Screen(Screen):
      pass
+class Comment_Screen(Screen):
+     def download_data(self):
+          self.app = MDApp.get_running_app()
+          self.answer = query('SELECT ID FROM COMMENT','select','all')
+          self.count = query('select count(*) from COMMENT','select')
+          if self.count > 6:
+               self.height += (self.count-6)*100
+               self.app.root.ids.comment_screen.ids.scroll.height = self.height
+          for i in range(self.count):
+               self.comment = Comment_card()
+               self.text = query(f'SELECT TEXT FROM COMMENT WHERE ID = {self.answer[i][0]}','select')
+               self.name_user = query(f'SELECT CREATE_DATE FROM COMMENT WHERE ID = {self.answer[i][0]}','select')
+               self.date = query(f'SELECT CREATE_DATE FROM COMMENT WHERE ID = {self.answer[i][0]}','select')
+               self.app.root.ids.comment_screen.ids.comment_container.add_widget(self.comment)
+     def send_comment(self):
+          global current_user
+          self.app = MDApp.get_running_app()
+          self.comment = Comment_card()
+          self.comment.ids.text_card.text = self.app.root.ids.comment_screen.ids.text_comment.text
+          self.comment.ids.user.text = query(f"SELECT FIRST_NAME FROM PROFILE WHERE = {current_user}")
+          self.now = datetime.datetime.now()
+          self.comment.ids.date_card.text = self.now.strftime("%d-%m-%Y %H:%M:%S")
+          self.count_card = int(self.app.root.ids.comment_screen.ids.count_card.text)
+          self.count_card += 1
+          self.app.root.ids.comment_screen.ids.count_card.text = str(self.count_card)
+          if self.count_card > 6:
+               self.height = self.app.root.ids.comment_screen.ids.scroll.height
+               self.height += 100
+               self.app.root.ids.comment_screen.ids.scroll.height = self.height
+          self.app.root.ids.comment_screen.ids.comment_container.add_widget(self.comment)
+          query(f'INSERT INTO COMMENT (ID_PROFILE,ID_AD,CREATE_DATE,TEXT) VALUES ({current_user},(SELECT ID FROM AD WHERE CREATE_DATE = {self.app.root.ids.ad_screen.ids.ad_container.ids.ad_date.text}),CAST("{self.now.strftime("%d-%m-%Y %H:%M:%S")}" AS DateTime),{self.app.root.ids.review_screen.ids.text_review.text})','insert')
+class Review_Screen(Screen):
+     def download_data(self):
+          self.app = MDApp.get_running_app()
+          self.answer = query('SELECT ID FROM REVIEW','select','all')
+          self.count = query('select count(*) from REVIEW','select')
+          if self.count > 6:
+               self.height += (self.count-6)*100
+               self.app.root.ids.review_screen.ids.scroll.height = self.height
+          for i in range(self.count):
+               self.review = Reviews_card()
+               self.text = query(f'SELECT TEXT FROM REVIEW WHERE ID = {self.answer[i][0]}','select')
+               self.name_user = query(f'SELECT CREATE_DATE FROM REVIEW WHERE ID = {self.answer[i][0]}','select')
+               self.date = query(f'SELECT CREATE_DATE FROM REVIEW WHERE ID = {self.answer[i][0]}','select')
+               self.app.root.ids.review_screen.ids.review_container.add_widget(self.review)
+     def send_review(self):
+          global current_user
+          self.app = MDApp.get_running_app()
+          self.review = Reviews_card()
+          self.review.ids.text_card.text = self.app.root.ids.review_screen.ids.text_review.text
+          self.now = datetime.datetime.now()
+          self.review.ids.date_card.text = self.now.strftime("%d-%m-%Y %H:%M:%S")
+          self.count_card = int(self.app.root.ids.review_screen.ids.count_card.text)
+          self.count_card += 1
+          self.app.root.ids.review_screen.ids.count_card.text = str(self.count_card)
+          if self.count_card > 6:
+               self.height = self.app.root.ids.review_screen.ids.scroll.height
+               self.height += 100
+               self.app.root.ids.review_screen.ids.scroll.height = self.height
+          self.app.root.ids.review_screen.ids.review_container.add_widget(self.review)
+          query(f'INSERT INTO REVIEW (ID_PROFILE,ID_SERVICE,CREATE_DATE,TEXT) VALUES ({current_user},(SELECT ID FROM AD WHERE CREATE_DATE = {self.app.root.ids.service_screen.ids.date_service.text}),CAST("{self.now.strftime("%d-%m-%Y %H:%M:%S")}" AS DateTime),{self.app.root.ids.review_screen.ids.text_review.text})','insert')
 class Service_List_Screen(Screen):
      pass
 class Service_Screen(Screen):
      pass
 class Profile_Screen(Screen):
+     global current_user
+     def download_my_ad(self):
+          if current_user is not None:
+               self.app = MDApp.get_running_app()
+               self.count = query(f'SELECT COUNT(*) FROM AD WHERE ID = {current_user}','select')
+               self.answer = query(f'SELECT * FROM AD WHERE ID = {current_user} ORDER BY ID DESC','select','all')
+               for i in range(self.count):
+               #for i in range(1):
+                    self.card = Lost_card()
+                    self.bdata = query(f'SELECT PHOTO FROM AD WHERE ID = {self.answer[i][0]}','select')
+                    self.data = io.BytesIO(self.bdata)
+                    self.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
+                    self.date = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.answer[i][0]}','select')
+                    self.gender = query(f'SELECT GENDER FROM AD WHERE ID = {self.answer[i][0]}','select')
+                    self.type = query(f'SELECT NAME FROM TYPE_AD WHERE ID = (SELECT TYPE FROM AD WHERE ID = {self.answer[i][0]}))','select')
+                    self.card.ids.card_date.text = self.date
+                    self.card.ids.gender.text = self.gender
+                    self.card.ids.type.text = self.type
+                    self.card.bind(on_touch_down=self.display_ad)
+                    self.app.root.ids.my_ad_screen.ids.container_lost.add_widget(self.card)
+     def display_ad(self, card, touch):
+          self.app = MDApp.get_running_app()
+          self.bdata = query(f'SELECT PHOTO FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.data = io.BytesIO(self.bdata)
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_image.texture = CoreImage(self.data, ext = "png").texture
+          self.create_date = card.ids.card_date.text
+          self.lat = query(f'SELECT LAT FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.lon = query(f'SELECT LON FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.kind = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM AD WHERE CREATE_DATE = {self.create_date})','select')
+          self.gender = query(f'SELECT GENDER FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.comment = query(f'SELECT TEXT FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.name = query(f'SELECT FIRST_NAME FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.phone_number = query(f'SELECT PHONE_NUMBER FROM AD WHERE CREATE_DATE = {self.create_date}','select')
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_date.text = self.create_date
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lat = self.lat
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lon = self.lon
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_kind.text = self.type
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_gender.text = self.gender
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_text.text = self.comment
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_name.text = self.name
+          self.app.root.ids.ad_screen.ids.ad_container.ids.ad_phone.text = self.phone_number
+          self.app.root.current = 'ad'
+     def download_my_service(self):
+          if current_user is not None:
+               self.app = MDApp.get_running_app()
+               self.count = query(f'SELECT COUNT(*) FROM SERVICE WHERE ID = {current_user}','select')
+               self.answer = query(f'SELECT * FROM SERVICE WHERE ID = {current_user} ORDER BY ID DESC','select','all')
+               for i in range(self.count):
+               #for i in range(1):
+                    self.card = Service_card()
+                    self.create_date = query(f'SELECT CREATE_DATE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.data = io.BytesIO(self.bdata)
+                    self.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
+                    self.name = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+                    self.price = query(f'SELECT PRICE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+                    self.card.ids.name_service_card.text = self.name + ' ' + self.lname
+                    self.card.ids.city_service_card.text = self.city
+                    self.card.ids.price_service_card.text = self.price
+                    self.card.ids.kind_service_card.text = self.kind
+                    self.card.ids.date_service_card.text = self.create_date
+                    self.card.bind(on_touch_down=self.display_service)
+                    self.app.root.ids.my_aervice_screen.ids.container_service.add_widget(self.card)
+     def display_service(self, card, touch):
+          self.app = MDApp.get_running_app()
+          self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+          self.data = io.BytesIO(self.bdata)
+          self.app.root.ids.service_screen.ids.service_image.texture = CoreImage(self.data, ext = "png").texture
+          self.create_date = card.ids.date_service_card.text
+          self.name = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.create_date}))','select')
+          self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.create_date}))','select')
+          self.address = query(f'SELECT ADDRESS FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+          self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.create_date}))','select')
+          self.price = query(f'SELECT PRICE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+          
+          self.app.root.ids.service_screen.ids.name_service.text = self.name + ' ' + self.lname
+          self.app.root.ids.service_screen.ids.address_service.text = self.address
+          self.app.root.ids.service_screen.ids.kind_service.text = self.kind
+          self.app.root.ids.service_screen.ids.price_service.text = self.price
+          self.app.root.ids.service_screen.ids.date_service.text = self.create_date
+          
+          self.kind_pet = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM SERVICE WHERE CREATE_DATE = {self.create_date})','select')
+          self.age = query(f'SELECT AGE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+          self.phone_number = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.create_date})','select')
+          self.comment = query(f'SELECT ABOUT_ME FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+          if self.kind_pet == 'Собака' or self.kind_pet == 'Все':
+               self.size_dog = query(f'SELECT SIZE_DOG FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.app.root.ids.service_screen.ids.size_dog2_serv.text = self.size_dog
+               self.app.root.ids.service_screen.ids.age_serv.text = self.age
+               self.app.root.ids.service_screen.ids.phone_serv.text = self.phone_number
+               self.app.root.ids.service_screen.ids.comment.text = self.comment
+               self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
+               if not self.medicine:
+                    self.app.root.ids.service_screen.ids.medicine.disabled = True
+               if not self.injection:
+                    self.app.root.ids.service_screen.ids.injection.disabled = True
+               if not self.control:
+                    self.app.root.ids.service_screen.ids.control.disabled = True
+               if not self.education:
+                    self.app.root.ids.service_screen.ids.education.disabled = True
+               else:
+                    self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
+                    self.app.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
+               self.app.root.current = 'service'
+          if self.kind_pet == 'Кошка':
+               self.app.root.ids.service_screen.ids.size_dog1_serv.disabled = True
+               self.app.root.ids.service_screen.ids.size_dog2_serv.disabled = True
+               self.app.root.ids.service_screen.ids.age_serv.text = self.age
+               self.app.root.ids.service_screen.ids.phone_serv.text = self.phone_number
+               self.app.root.ids.service_screen.ids.comment.text = self.comment
+               self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+               self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
+               if not self.medicine:
+                    self.app.root.ids.service_screen.ids.medicine.disabled = True
+               if not self.injection:
+                    self.app.root.ids.service_screen.ids.injection.disabled = True
+               if not self.control:
+                    self.app.root.ids.service_screen.ids.control.disabled = True
+               if not self.education:
+                    self.app.root.ids.service_screen.ids.education.disabled = True
+               else:
+                    self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
+                    self.app.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
+               self.app.root.current = 'service'
      def download_data(self):
-          global current_user
           if current_user != None:
                self.name = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.bdata = query(f'SELECT AVATAR FROM PROFILE WHERE ID = {current_user}','select')
+               self.data = io.BytesIO(self.bdata)
+               self.ids.avatar.texture = CoreImage(self.data, ext = "png").texture
                self.ids.name_profile.text = self.name
                self.ids.lname_profile.text = self.lname
+
 class Add_Screen(Screen):
      global current_user
      def on_enter(self, **kwargs):
           if current_user is None:
-               pass
-               #self.ids.add_overexposure_card.disabled = True
-               #self.ids.add_nanny_card.disabled = True
-               #self.ids.add_walk_card.disabled = True
+               self.ids.add_lost_card.disabled = True
+               self.ids.add_overexposure_card.disabled = True
+               self.ids.add_nanny_card.disabled = True
+               self.ids.add_walk_card.disabled = True
 class Add_See_Screen(Screen):
      global current_user
      def on_enter(self, **kwargs):
@@ -292,7 +680,7 @@ class Add_See_Screen(Screen):
           gps.start(1000, 0)
           
      def download_image(self):
-          self.fc = FileChooser()
+          self.fc = FileChooser(title = 'Выберите изображение')
           self.fc.open()
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
@@ -301,8 +689,8 @@ class Add_See_Screen(Screen):
                               )
           self.dialog.open()
      def dialog_close(self,obj):
-        self.dialog.dismiss(force=True)
-     def apply_filter(self):
+          self.dialog.dismiss(force=True)
+     def add_see(self):
           if not self.ids.kind_pet_cat.active and not self.ids.kind_pet_dog.active and not self.ids.gender_man.active and not self.ids.gender_wom.active and not self.ids.gender_unk.active:
                self.show_dialog('Укажите вид и пол животного')
           else:
@@ -321,9 +709,9 @@ class Add_See_Screen(Screen):
                               self.show_dialog('Загрузите фото животного')
 
           if self.ids.kind_pet_cat.active:
-               self.kind = '1'
+               self.kind = 1
           if self.ids.kind_pet_dog.active:
-               self.kind = '2'
+               self.kind = 2
           if self.ids.gender_man.active:
                self.gender = '"Мальчик"'
           if self.ids.gender_wom.active:
@@ -333,20 +721,22 @@ class Add_See_Screen(Screen):
           self.geolocator = Nominatim(user_agent="Pets")
           self.location = self.geolocator.geocode(self.ids.address.text)
           print(self.location.latitude, self.location.longitude)
-          self.location_r = self.geolocator.reverse(self.location.latitude, self.location.longitude)
+          self.latitude = self.location.latitude
+          self.longitude = self.location.longitude
+          self.location_r = self.geolocator.reverse(f'{self.latitude}, {self.longitude}')
           self.city = self.location_r.raw['address']['city']
           if not self.ids.name:
-               self.name = 'NULL'
+               self.fname = 'NULL'
           else:
-               self.name = self.ids.name
+               self.fname = self.ids.name.text
           if not self.ids.phone:
                self.phone = 'NULL'
           else:
-               self.phone = self.ids.phone
+               self.phone = self.ids.phone.text
           if not self.ids.comment:
                self.comment = 'NULL'
           else:
-               self.comment = self.ids.comment
+               self.comment = self.ids.comment.text
           if current_user is None:
                self.id_user = 'NULL'
           else:
@@ -354,8 +744,9 @@ class Add_See_Screen(Screen):
           if self.ids.img.text:
                with open(self.ids.path_img.text, 'rb') as file:
                     self.blobData = file.read()
-          query(f'INSERT INTO AD (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,CITY) VALUES (1,{self.kind},{self.gender},%s,{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.city})','insert',photo=self.blobData)
-          gps.stop()
+          q = f'INSERT INTO AD (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,CITY) VALUES (1,{self.kind},{self.gender},%s,{self.location.latitude},{self.location.longitude},"{self.fname}","{self.phone}","{self.comment}",{self.id_user},NOW(),"{self.city}")'
+          query(f'INSERT INTO AD (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,CITY) VALUES (1,{self.kind},{self.gender},%s,{self.location.latitude},{self.location.longitude},"{self.fname}","{self.phone}","{self.comment}",{self.id_user},NOW(),"{self.city}")','insert',photo=self.blobData)
+          #gps.stop()
 class Add_Lost_Screen(Screen):
      global current_user
      def on_enter(self, **kwargs):
@@ -368,7 +759,7 @@ class Add_Lost_Screen(Screen):
                self.ids.name.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.ids.phone.text = int(query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select'))
      def download_image(self):
-          self.fc = FileChooser()
+          self.fc = FileChooser(title = 'Выберите изображение')
           self.fc.open()
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
@@ -430,10 +821,10 @@ class Add_Lost_Screen(Screen):
           query(f'INSERT INTO AD (TYPE,KIND_PETS,GENDER,PHOTO,LAT,LON,FIRST_NAME,PHONE_NUMBER,TEXT,ID_PROFILE,CREATE_DATE,NICKNAME) VALUES (2,{self.kind},{self.gender},%s,{self.location.latitude},{self.location.longitude},{self.name},{self.phone},{self.id_user},NOW(),{self.nickname})','insert',photo=self.blobData)
 class Add_Overexposure_Screen(Screen):
      global current_user
-     # def on_enter(self, **kwargs):
-     #      self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
-     #      self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
-     #      self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+     def on_enter(self, **kwargs):
+          self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+          self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+          self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
      def on_location(self, **kwargs):
           self.lat = kwargs['lat']
           self.lon = kwargs['lon']
@@ -450,7 +841,7 @@ class Add_Overexposure_Screen(Screen):
           gps.configure(on_location=self.on_location)
           gps.start(1000, 0)
      def download_image(self):
-          self.fc = FileChooser()
+          self.fc = FileChooser(title = 'Выберите изображение')
           self.fc.open()
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
@@ -536,7 +927,7 @@ class Add_Overexposure_Screen(Screen):
                          else:
                               with open(r'Image\overexposure_add.png', 'rb') as file:
                                    self.blobData = file.read()
-                         query(f'INSERT INTO SERVICE (KIND,KIND_PETS,SIZE_DOG,AGE,ID_PROFILE,`MEDICINE`,`INJECTION`,`CONTROL`,`EDUCATION`,`NAME_EDUCATION`,`ADDRESS`,`CITY`,`PRICE`,`ABOUT_ME`,`CREATE_DATE`,PHOTO) VALUES (1,{self.kind},{self.size_dog},{self.age},{current_user},{self.medicine},{self.injection},{self.control},{self.education},{self.name_educ},{self.address},{self.city},{self.price},{self.comment},NOW(),%s)','insert',photo=self.blobData)
+                         query(f'INSERT INTO SERVICE (KIND,KIND_PETS,SIZE_DOG,AGE,ID_PROFILE,`MEDICINE`,`INJECTION`,`CONTROL`,`EDUCATION`,`NAME_EDUCATION`,`ADDRESS`,`CITY`,`PRICE`,`ABOUT_ME`,`CREATE_DATE`,PHOTO) VALUES (1,"{self.kind}","{self.size_dog}","{self.age}","{current_user}",{self.medicine},{self.injection},{self.control},{self.education},"{self.name_educ}","{self.address}","{self.city}","{self.price}","{self.comment}",NOW(),%s)','insert',photo=self.blobData)
                          gps.stop()
      def active_cat(self):
           if self.ids.kind_cb_cat.active and self.ids.kind_cb_all.active:
@@ -584,10 +975,10 @@ class Add_Overexposure_Screen(Screen):
           
 
 class Add_Nanny_Screen(Screen):
-     # def on_enter(self, **kwargs):
-     #      self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
-     #      self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
-     #      self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+     def on_enter(self, **kwargs):
+          self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+          self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+          self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
      def on_location(self, **kwargs):
           self.lat = kwargs['lat']
           self.lon = kwargs['lon']
@@ -604,7 +995,7 @@ class Add_Nanny_Screen(Screen):
           gps.configure(on_location=self.on_location)
           gps.start(1000, 0)
      def download_image(self):
-          self.fc = FileChooser()
+          self.fc = FileChooser(title = 'Выберите изображение')
           self.fc.open()
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
@@ -732,12 +1123,12 @@ class Add_Nanny_Screen(Screen):
           else:
                self.ids.name_educ.opacity = 0
 class Add_Walk_Screen(Screen):
-     # def on_enter(self, **kwargs):
-     #      self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
-     #      self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
-     #      self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+     def on_enter(self, **kwargs):
+          self.ids.fname.text = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+          self.ids.lname.text = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
+          self.ids.phone.text = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
      def download_image(self):
-          self.fc = FileChooser()
+          self.fc = FileChooser(title = 'Выберите изображение')
           self.fc.open()
      def show_dialog(self,text):
           self.dialog = MDDialog(title='Ошибка',
@@ -794,20 +1185,28 @@ class Add_Walk_Screen(Screen):
      def active_size_small(self):
           if self.ids.size_small.active and self.ids.size_all.active:
                self.ids.size_all.active = False
+class My_Ad_Screen(Screen):
+     pass
+class My_Service_Screen(Screen):
+     pass
 class Personal_Data(Screen):
      change = StringProperty('Изменить пароль')
+     global current_user
      def download_image(self):
-          self.fc = FileChooser()
+          self.fc = FileChooser(title = 'Выберите изображение')
           self.fc.open()
+     def save_change(self):
+          with open(self.ids.profile_icon.icon, 'rb') as file:
+               self.blobData = file.read()
+          query(f'UPDATE FIRST_NAME="{self.ids.name_pd.text}",LAST_NAME="{self.ids.lname_pd.text}",AVATAR=%s,EMAIL="{self.ids.email_pd.text}",PHONE_NUMBER="{self.ids.phone_pd.text}" WHERE ID = {current_user}','update',photo=self.blobData)
      def download_data(self):
-          global current_user
           if current_user != None:
-               self.name = query(f'SELECT NAME FROM PROFILE WHERE ID = {current_user}','select')
+               self.fname = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = {current_user}','select')
                self.email = query(f'SELECT EMAIL FROM PROFILE WHERE ID = {current_user}','select')
                #self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = {current_user}','select')
-               self.phone = query(f'SELECT PHONE_UMBER FROM PROFILE WHERE ID = {current_user}','select')
-               self.ids.name_pd.text = self.name
+               self.phone = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = {current_user}','select')
+               self.ids.name_pd.text = self.fname
                self.ids.lname_pd.text = self.lname
                self.ids.email_pd.text = self.email
                #self.ids.city_pd.text = self.city
@@ -857,7 +1256,7 @@ class Change_Password_Screen(Screen):
           self.repeat_new_password = self.ids.repeat_new_pass.text
           self.salt = query(f'SELECT SALT FROM PROFILE WHERE ID = {current_user}','select')
           self.password_db = query(f'SELECT PASSWORD FROM PROFILE WHERE ID = {current_user}','select')
-          self.hash = hashlib.sha512(bytes(self.old_password,encoding='utf-8')+self.salt)
+          self.hash = hashlib.sha512(bytes(self.old_password,encoding='utf-8')+bytes(self.salt,encoding='utf-8'))
           self.hash_dig = self.hash.hexdigest()
           if not self.ids.old_pass.text or not self.ids.new_pass.text:
                self.show_dialog('Не все поля заполнены')
@@ -877,7 +1276,7 @@ class Change_Password_Screen(Screen):
                          dec_salt = salt_b.decode('utf-8',errors='ignore')
                          hash = hashlib.sha512(bytes(self.new_password,encoding='utf-8')+bytes(dec_salt,encoding='utf-8'))
                          hex_dig = hash.hexdigest()
-                         query(f'UPDATE PROFILE SET PASSWORD = {hex_dig}, SALT = {dec_salt}','update')
+                         query(f'UPDATE PROFILE SET PASSWORD = "{hex_dig}", SALT = "{dec_salt}" WHERE ID = {current_user}','update')
                          self.app.root.current = "data_personal"
                          self.app.root.transition.direction = "right"
                     
@@ -895,19 +1294,19 @@ class FileChooser(Popup):
                self.app.root.ids.add_see_screen.ids.img.opacity = 1
           if self.app.root.current == 'add_lost':
                self.app.root.ids.add_lost_screen.ids.img.text = self.name_img
-               self.app.root.ids.add_see_screen.ids.path_img.text = self.path_img
+               self.app.root.ids.add_lost_screen.ids.path_img.text = self.path_img
                self.app.root.ids.add_lost_screen.ids.img.opacity = 1
           if self.app.root.current == 'add_overexposure':
                self.app.root.ids.add_overexposure_screen.ids.img.text = self.name_img
-               self.app.root.ids.add_see_screen.ids.path_img.text = self.path_img
+               self.app.root.ids.add_overexposure_screen.ids.path_img.text = self.path_img
                self.app.root.ids.add_overexposure_screen.ids.img.opacity = 1
           if self.app.root.current == 'add_nanny':
                self.app.root.ids.add_nanny_screen.ids.img.text = self.name_img
-               self.app.root.ids.add_see_screen.ids.path_img.text = self.path_img
+               self.app.root.ids.add_nanny_screen.ids.path_img.text = self.path_img
                self.app.root.ids.add_nanny_screen.ids.img.opacity = 1
           if self.app.root.current == 'add_walk':
                self.app.root.ids.add_walk_screen.ids.img.text = self.name_img
-               self.app.root.ids.add_see_screen.ids.path_img.text = self.path_img
+               self.app.root.ids.add_walk_screen.ids.path_img.text = self.path_img
                self.app.root.ids.add_walk_screen.ids.img.opacity = 1
           if self.app.root.current == 'data_personal':
                self.app.root.ids.personal_data.ids.profile_icon.icon = self.path_img
@@ -928,6 +1327,8 @@ class Add_walk_card(RoundedRectangularElevationBehavior,MDCard):
      pass
 class Reviews_card(RoundedRectangularElevationBehavior,MDCard):
      pass
+class Comment_card(RoundedRectangularElevationBehavior,MDCard):
+     pass
 class Tab(MDFloatLayout, MDTabsBase):
      pass
 class Lost_list(Tab):
@@ -945,21 +1346,23 @@ class Sign_in(Tab):
      def dialog_close(self,obj):
           self.dialog.dismiss(force=True)
      def get_text_sign(self):
-          email = self.ids.email_sign.text
-          password = self.ids.passw_sign.text
-          app = MDApp.get_running_app()
-          answer = query(f'SELECT EMAIL FROM PROFILE WHERE EMAIL = {email}','select')
-          salt = query(f'SELECT SALT FROM PROFILE WHERE EMAIL = {email}','select')
-          password_db = query(f'SELECT PASSWORD FROM PROFILE WHERE EMAIL = {email}','select')
-          hash = hashlib.sha512(bytes(password,encoding='utf-8')+salt)
-          hash_dig = hash.hexdigest()
-          if answer == None:
+          self.email = self.ids.email_sign.text
+          self.password = self.ids.passw_sign.text
+          self.app = MDApp.get_running_app()
+          self.answer = query(f'SELECT EMAIL FROM PROFILE WHERE EMAIL = "{self.email}"','select')
+          self.salt = query(f'SELECT SALT FROM PROFILE WHERE EMAIL = "{self.email}"','select')
+          self.password_db = query(f'SELECT PASSWORD FROM PROFILE WHERE EMAIL = "{self.email}"','select')
+          self.hash = hashlib.sha512(bytes(self.password,encoding='utf-8')+bytes(self.salt,encoding='utf-8'))
+          self.hash_dig = self.hash.hexdigest()
+          if self.answer == None:
                self.show_dialog('Данной учетной записи не существует')
-          elif email == answer and hash_dig == password_db:
+          if self.hash_dig != self.password_db:
+               self.show_dialog('Пароль не верный')
+          elif self.email == self.answer and self.hash_dig == self.password_db:
                global current_user
-               current_user = query(f'SELECT ID FROM PROFILE WHERE EMAIL = {email}','select')
-               app.root.current = "main"
-               app.root.transition.direction = "left"
+               current_user = query(f'SELECT ID FROM PROFILE WHERE EMAIL = "{self.email}"','select')
+               self.app.root.current = "main"
+               self.app.root.transition.direction = "left"
 class Registration(Tab):
      hint = StringProperty('Имя')
      def show_dialog(self,text):
@@ -1082,7 +1485,6 @@ class Registration(Tab):
           name = self.ids.name_reg.text
           lname = self.ids.lname_reg.text
           email = self.ids.email_reg.text
-          city = self.ids.city_reg.text
           phone = self.ids.phone_reg.text
           password1 = self.ids.passw_reg1.text
           password2 = self.ids.passw_reg2.text
@@ -1118,20 +1520,15 @@ class Registration(Tab):
           hex_dig = hash.hexdigest()
           #print(hex_dig)
           #query(f'INSERT INTO city VALUE({city})','insert')
-          query(f'INSERT INTO profile (FIRST_NAME, LAST_NAME, EMAIL, PHONE_NUMBER, PASSWORD, SALT) VALUES ({name},{lname},{email},{phone},{hex_dig}),{dec_salt}','insert')
+          with open('Image\\def_img_profile.png', 'rb') as file:
+               self.blobData = file.read()
+          query(f'INSERT INTO profile (FIRST_NAME, LAST_NAME, AVATAR, EMAIL, PHONE_NUMBER, PASSWORD, SALT) VALUES ("{name}","{lname}",%s,"{email}","{phone}","{hex_dig}","{dec_salt}")','insert',photo=self.blobData)
           global current_user
-          current_user = query(f'SELECT ID FROM PROFILE WHERE EMAIL = {email}','select')
+          current_user = query(f'SELECT ID FROM PROFILE WHERE EMAIL = "{email}"','select')
           app.root.current = "main"
           app.root.transition.direction = "left"
 class About_me(Tab):
      pass
-class Reviews(Tab):
-     def send_review(self):
-          self.app = MDApp.get_running_app()
-          self.review = Reviews_card()
-          self.review.ids.text_card.text = self.app.root.ids.service_screen.ids.review.ids.text_review.text
-          print(self.app.root.ids.service_screen.ids.review.ids.text_review.text)
-          self.app.root.ids.service_screen.ids.review.ids.review_container.add_widget(self.review)
 class PopupMarker(Widget):
      pass
 class Ad(RelativeLayout):
@@ -1190,145 +1587,160 @@ class PetsApp(MDApp):
      def transition_notif(self):
           global current_user
           if current_user == None:
-               #self.root.transition = NoTransition()
                self.root.current = 'notif_noreg'
-          #else:
+          else:
+               self.root.current = 'notification'
      def transition_profile(self):
           global current_user
-          self.root.current = 'profile'
-          # if current_user == None:
-          #      #self.root.transition = NoTransition()
-          #      self.root.current = 'profile_noreg'
-          # else:
-          #      self.root.current = 'profile'
+          if current_user == None:
+               self.root.current = 'profile_noreg'
+          else:
+               self.root.current = 'profile'
      def add_cards_ads(self):
+          global current_user
           self.count = query(f'SELECT COUNT(*) FROM AD','select')
           self.answer = query('SELECT * FROM AD ORDER BY ID DESC','select','all')
-          #for i in range(self.count):
-          for i in range(10):
+          self.ad_container = MDBoxLayout(orientation="vertical",adaptive_height=True,spacing='25dp')
+          for i in range(self.count):
+          #for i in range(1):
                self.card = Lost_card()
-               # self.bdata = query(f'SELECT PHOTO FROM AD WHERE ID = {self.answer[i][0]}','select')
-               # self.data = io.BytesIO(self.bdata)
-               # self.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
-               #self.date = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.answer[i][0]}','select')
-               #self.gender = query(f'SELECT GENDER FROM AD WHERE ID = {self.answer[i][0]}','select')
-               #self.type = query(f'SELECT NAME FROM TYPE_AD WHERE ID = (SELECT TYPE FROM AD WHERE ID = {self.answer[i][0]}))','select')
-               #self.card.ids.card_date.text = self.date
-               #self.card.ids.gender.text = self.gender
-               #self.card.ids.type.text = self.type
+               self.bdata = query(f'SELECT PHOTO FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.data = io.BytesIO(self.bdata)
+               self.card.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
+               self.date = query(f'SELECT CREATE_DATE FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.gender = query(f'SELECT GENDER FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.type = query(f'SELECT TYPE FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.city = query(f'SELECT CITY FROM AD WHERE ID = {self.answer[i][0]}','select')
+               self.card.ids.card_date.text = str(self.date)
+               self.card.ids.gender.text = self.gender
+               if self.type == 1 and self.gender == 'Мальчик':
+                    self.card.ids.type.text = 'Пропал'
+               elif self.type == 1 and self.gender == 'Девочка':
+                    self.card.ids.type.text = 'Пропала'
+               if self.type == 2 and self.gender == 'Мальчик':
+                    self.card.ids.type.text = 'Замечен'
+               elif self.type == 2 and self.gender == 'Девочка':
+                    self.card.ids.type.text = 'Замечена'
+               self.card.ids.city.text = self.city
                self.card.bind(on_touch_down=self.display_ad)
-               self.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(self.card)
+               self.ad_container.add_widget(self.card)
+          self.root.ids.mainscreen.ids.lost_list.ids.container_lost.clear_widgets()
+          self.root.ids.mainscreen.ids.lost_list.ids.container_lost.add_widget(self.ad_container)
      def add_cards_services(self):
+          global current_user
           self.count = query(f'SELECT COUNT(*) FROM SERVICE','select')
           self.answer = query('SELECT * FROM SERVICE ORDER BY ID DESC','select','all')
-          #for i in range(self.count):
-          for i in range(1):
+          self.service_container = MDBoxLayout(orientation="vertical",adaptive_height=True,spacing='25dp')
+          for i in range(self.count):
+          #for i in range(1):
                self.card = Service_card()
-               #self.create_date = query(f'SELECT CREATE_DATE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
-               # self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
-               # self.data = io.BytesIO(self.bdata)
-               # self.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
-               # self.name = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
-               # self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
-               # self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
-               # self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
-               # self.price = query(f'SELECT PRICE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
-               # self.card.ids.name_service_card.text = self.name + ' ' + self.lname
-               # self.card.ids.city_service_card.text = self.city
-               # self.card.ids.price_service_card.text = self.price
-               #self.card.ids.kind_service_card.text = self.kind
-               #self.card.ids.date_service_card.text = self.create_date
+               self.create_date = query(f'SELECT CREATE_DATE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+               self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+               self.data = io.BytesIO(self.bdata)
+               self.card.ids.card_image.texture = CoreImage(self.data, ext = "png").texture
+               self.fname = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+               self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+               self.city = query(f'SELECT CITY FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+               self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.answer[i][0]}))','select')
+               self.price = query(f'SELECT PRICE FROM SERVICE WHERE ID = {self.answer[i][0]}','select')
+               self.card.ids.name_service_card.text = self.fname + ' ' + self.lname
+               self.card.ids.city_service_card.text = self.city
+               self.card.ids.price_service_card.text = self.price
+               self.card.ids.kind_service_card.text = self.kind
+               self.card.ids.date_service_card.text = self.create_date
                self.card.bind(on_touch_down=self.display_service)
-               self.root.ids.service_list_screen.ids.container_service.add_widget(self.card)
+               self.service_container.add_widget(self.card)
+          self.root.ids.service_list_screen.ids.container_service.clear_widgets()
+          self.root.ids.service_list_screen.ids.container_service.add_widget(self.service_container)
      def display_ad(self, card, touch):
-          # self.bdata = query(f'SELECT PHOTO FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.data = io.BytesIO(self.bdata)
-          # self.root.ids.ad.ids.ad_container.ids.ad_image.texture = CoreImage(self.data, ext = "png").texture
-          # self.create_date = card.ids.card_date.text
-          # self.lat = query(f'SELECT LAT FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.lon = query(f'SELECT LON FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.kind = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM AD WHERE CREATE_DATE = {self.create_date})','select')
-          # self.gender = query(f'SELECT GENDER FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.comment = query(f'SELECT TEXT FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.name = query(f'SELECT FIRST_NAME FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.phone_number = query(f'SELECT PHONE_NUMBER FROM AD WHERE CREATE_DATE = {self.create_date}','select')
-          # self.root.ids.ad_screen.ids.ad_container.ids.ad_date.text = self.create_date
-          # self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lat = 55.818
-          # self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lon = 37.3317
-          # self.root.ids.ad.ids.ad_container.ids.ad_kind.text = self.type
-          # self.root.ids.ad.ids.ad_container.ids.ad_gender.text = self.gender
-          # self.root.ids.ad.ids.ad_container.ids.ad_text.text = self.comment
-          # self.root.ids.ad.ids.ad_container.ids.ad_name.text = self.name
-          # self.root.ids.ad.ids.ad_container.ids.ad_phone.text = self.phone_number
+          self.create_date = card.ids.card_date.text
+          self.bdata = query(f'SELECT PHOTO FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.data = io.BytesIO(self.bdata)
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_image.texture = CoreImage(self.data, ext = "png").texture
+          self.lat = query(f'SELECT LAT FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.lon = query(f'SELECT LON FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.kind = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM AD WHERE CREATE_DATE = "{self.create_date}")','select')
+          self.gender = query(f'SELECT GENDER FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.comment = query(f'SELECT TEXT FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.fname = query(f'SELECT FIRST_NAME FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.phone_number = query(f'SELECT PHONE_NUMBER FROM AD WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_date.text = self.create_date
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_map.lat = self.lat
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_map.lon = self.lon
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lat = self.lat
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_mapmarker.lon = self.lon
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_kind.text = self.kind
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_gender.text = self.gender
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_text.text = self.comment
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_name.text = self.fname
+          self.root.ids.ad_screen.ids.ad_container.ids.ad_phone.text = self.phone_number
           self.root.current = 'ad'
      def display_service(self, card, touch):
-          self.root.current = 'service'
-          # self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          # self.data = io.BytesIO(self.bdata)
-          # self.root.ids.ad.ids.ad_container.ids.service_image.texture = CoreImage(self.data, ext = "png").texture
-          # self.create_date = card.ids.date_service_card.text
-          # self.name = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.create_date}))','select')
-          # self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.create_date}))','select')
-          # self.address = query(f'SELECT ADDRESS FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          # self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = {self.create_date}))','select')
-          # self.price = query(f'SELECT PRICE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
+          self.create_date = card.ids.date_service_card.text
+          self.bdata = query(f'SELECT PHOTO FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.data = io.BytesIO(self.bdata)
+          self.root.ids.ad_screen.ids.ad_container.ids.service_image.texture = CoreImage(self.data, ext = "png").texture
+          self.fname = query(f'SELECT FIRST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.lname = query(f'SELECT LAST_NAME FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.address = query(f'SELECT ADDRESS FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.kind = query(f'SELECT NAME FROM KIND_SERVICE WHERE ID = (SELECT KIND FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.price = query(f'SELECT PRICE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
           
-          # self.root.ids.service_screen.ids.name_service.text = self.name + ' ' + self.lname
-          # self.root.ids.service_screen.ids.address_service.text = self.address
-          # self.root.ids.service_screen.ids.kind_service.text = self.kind
-          # self.root.ids.service_screen.ids.price_service.text = self.price
+          self.root.ids.service_screen.ids.name_service.text = self.fname + ' ' + self.lname
+          self.root.ids.service_screen.ids.address_service.text = self.address
+          self.root.ids.service_screen.ids.kind_service.text = self.kind
+          self.root.ids.service_screen.ids.price_service.text = self.price
+          self.root.ids.service_screen.ids.date_service.text = self.create_date
           
-          # self.kind_pet = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM SERVICE WHERE CREATE_DATE = {self.create_date})','select')
-          # self.age = query(f'SELECT AGE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          # self.phone_number = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = {self.create_date})','select')
-          # self.comment = query(f'SELECT ABOUT_ME FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          # if self.kind_pet == 'Собака' or self.kind_pet == 'Все':
-          #      self.size_dog = query(f'SELECT SIZE_DOG FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.root.ids.service_screen.ids.size_dog2_serv.text = self.size_dog
-          #      self.root.ids.service_screen.ids.age_serv.text = self.age
-          #      self.root.ids.service_screen.ids.phone_serv.text = self.phone_number
-          #      self.root.ids.service_screen.ids.comment.text = self.comment
-          #      self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
-          #      if not self.medicine:
-          #           self.root.ids.service_screen.ids.medicine.disabled = True
-          #      if not self.injection:
-          #           self.root.ids.service_screen.ids.injection.disabled = True
-          #      if not self.control:
-          #           self.root.ids.service_screen.ids.control.disabled = True
-          #      if not self.education:
-          #           self.root.ids.service_screen.ids.education.disabled = True
-          #      else:
-          #           self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
-          #           self.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
-          #      self.root.current = 'service'
-          # if self.kind_pet == 'Кошка':
-          #      self.root.ids.service_screen.ids.size_dog1_serv.disabled = True
-          #      self.root.ids.service_screen.ids.size_dog2_serv.disabled = True
-          #      self.root.ids.service_screen.ids.age_serv.text = self.age
-          #      self.root.ids.service_screen.ids.phone_serv.text = self.phone_number
-          #      self.root.ids.service_screen.ids.comment.text = self.comment
-          #      self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select')
-          #      self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
-          #      if not self.medicine:
-          #           self.root.ids.service_screen.ids.medicine.disabled = True
-          #      if not self.injection:
-          #           self.root.ids.service_screen.ids.injection.disabled = True
-          #      if not self.control:
-          #           self.root.ids.service_screen.ids.control.disabled = True
-          #      if not self.education:
-          #           self.root.ids.service_screen.ids.education.disabled = True
-          #      else:
-          #           self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = {self.create_date}','select') 
-          #           self.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
-          #      self.root.current = 'service'
+          self.kind_pet = query(f'SELECT NAME FROM KIND_PET WHERE ID = (SELECT KIND_PETS FROM SERVICE WHERE CREATE_DATE = "{self.create_date}")','select')
+          self.age = query(f'SELECT AGE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          self.phone_number = query(f'SELECT PHONE_NUMBER FROM PROFILE WHERE ID = (SELECT ID_PROFILE FROM SERVICE WHERE ID = "{self.create_date}")','select')
+          self.comment = query(f'SELECT ABOUT_ME FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+          if self.kind_pet == 'Собака' or self.kind_pet == 'Все':
+               self.size_dog = query(f'SELECT SIZE_DOG FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.root.ids.service_screen.ids.size_dog2_serv.text = self.size_dog
+               self.root.ids.service_screen.ids.age_serv.text = self.age
+               self.root.ids.service_screen.ids.phone_serv.text = self.phone_number
+               self.root.ids.service_screen.ids.comment.text = self.comment
+               self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+               if not self.medicine:
+                    self.root.ids.service_screen.ids.medicine.disabled = True
+               if not self.injection:
+                    self.root.ids.service_screen.ids.injection.disabled = True
+               if not self.control:
+                    self.root.ids.service_screen.ids.control.disabled = True
+               if not self.education:
+                    self.root.ids.service_screen.ids.education.disabled = True
+               else:
+                    self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+                    self.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
+               self.root.current = 'service'
+          if self.kind_pet == 'Кошка':
+               self.root.ids.service_screen.ids.size_dog1_serv.disabled = True
+               self.root.ids.service_screen.ids.size_dog2_serv.disabled = True
+               self.root.ids.service_screen.ids.age_serv.text = self.age
+               self.root.ids.service_screen.ids.phone_serv.text = self.phone_number
+               self.root.ids.service_screen.ids.comment.text = self.comment
+               self.medicine = query(f'SELECT MEDICINE FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.injection = query(f'SELECT INJECTION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.control = query(f'SELECT CONTROL FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select')
+               self.education = query(f'SELECT EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+               if not self.medicine:
+                    self.root.ids.service_screen.ids.medicine.disabled = True
+               if not self.injection:
+                    self.root.ids.service_screen.ids.injection.disabled = True
+               if not self.control:
+                    self.root.ids.service_screen.ids.control.disabled = True
+               if not self.education:
+                    self.root.ids.service_screen.ids.education.disabled = True
+               else:
+                    self.name_educ = query(f'SELECT NAME_EDUCATION FROM SERVICE WHERE CREATE_DATE = "{self.create_date}"','select') 
+                    self.root.ids.service_screen.ids.education.text = '- Профильное образование - '+ self.name_educ
+               self.root.current = 'service'
                
-
-
      def on_start(self, **kwargs):
           self.check_internet()
           self.add_cards_ads()
