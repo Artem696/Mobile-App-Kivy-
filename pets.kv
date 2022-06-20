@@ -100,10 +100,10 @@ WindowManager:
             source: 'Image\\logo.png'
             size_hint: 1, 1
         Label:
-            id: gender_marker
+            id: type_marker
             color: 0,0,0,1
             font_size: '15sp'
-            text: 'Мальчик'
+            text: 'Пропала'
 <Lost_card>:
     size_hint_y: None
     height: 200
@@ -122,9 +122,33 @@ WindowManager:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     BoxLayout:
         orientation: 'vertical'
-        size_hint: 1,0.3
-        spacing: dp(10)
-        pos_hint: {'center_x': .5, 'center_y': .45}
+        size_hint: 1,0.4
+        spacing: dp(25)
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        FloatLayout:
+            size_hint: 1,0.5
+            Label:
+                id: date
+                color: 0,0,0,1
+                font_size: '15sp'
+                text: 'Дата/Время'
+                opacity: 0
+            # MDIconButton:
+            #     id: btn_close
+            #     icon: 'pencil'
+            #     ripple_scale: 0.1
+            #     user_font_size: sp(16)
+            #     pos_hint: {'center_x': 0.8, 'y': 0.9}
+            #     opacity: 0
+            #     on_press: root.change(self)
+            MDIconButton:
+                id: btn_close
+                icon: 'window-close'
+                ripple_scale: 0.1
+                user_font_size: sp(16)
+                pos_hint: {'center_x': 0.9, 'y': 0.9}
+                opacity: 0
+                on_press: root.delete_ad(self)
         Label:
             id: card_date
             color: 0,0,0,1
@@ -158,10 +182,14 @@ WindowManager:
     BoxLayout:
         orientation: "vertical"
         ScrollView:
-            id: container_lost
             do_scroll_x: False
             do_scroll_y: True
             bar_color: [0, 0, 0, 1]
+            MDBoxLayout:
+                id: container_lost
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: dp(25)
 
 <StartScreen>:
     FloatLayout:
@@ -207,7 +235,7 @@ WindowManager:
         MDIconButton:
             icon: 'filter'
             ripple_scale: 0.8
-            pos_hint: {'x': 0.93, 'y': -0.2}
+            pos_hint: {'x': 0.89, 'y': -0.2}
             user_font_size: sp(35)
             on_release:
                 app.root.current = 'lost_filter'
@@ -328,7 +356,9 @@ WindowManager:
         font_size: '20sp'
         color: 0,0,0,1
         text: 'Войти'
-        on_release: root.get_text_sign()
+        on_release: 
+            root.add_markers() 
+            root.get_text_sign()
 <Agreement@ButtonBehavior+Label>
 <Registration>:
     BoxLayout:
@@ -464,7 +494,9 @@ WindowManager:
         font_size: '20sp'
         color: 0,0,0,1
         text: 'Зарегистрироваться'
-        on_release: root.check_field()
+        on_release:
+            root.add_markers()  
+            root.check_field()
     Agreement:
         pos_hint: {'center_x': 0.5, 'center_y': 0.02}
         size_hint_y: 0.01
@@ -489,7 +521,7 @@ WindowManager:
             pos_hint: {'x':0,'y':0}
             color: 0,0,0,1
             font_size: '18sp'
-            text:'Профиль'
+            text:'Вход/Регистрация'
         MDIconButton:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
@@ -856,7 +888,7 @@ WindowManager:
 <Ad>:
     Image:
         id: ad_image
-        source: 'Image\\cat.jpg'
+        source: 'Image\\cat.png'
         size_hint: 0.6, None
         height: 150
         pos_hint: {'x':0.2,'y':0.85}
@@ -878,7 +910,7 @@ WindowManager:
         id: ad_map
         lat:55.818
         lon:37.3317
-        zoom:10
+        zoom:15
         pos_hint: {'x': 0.1, 'y': 0.48}
         size_hint: 0.8, None
         height: 300
@@ -889,10 +921,9 @@ WindowManager:
     Image:
         source: 'Image\\pet.png'
         size_hint: None, None
-        allow_stretch: True
-        height: 64
-        width: 64
-        pos_hint: {'x': 0, 'y': 0}
+        height: 32
+        width: 32
+        pos_hint: {'x': 0.05, 'y':0.4}
     Label:
         id: ad_kind
         color: 0,0,0,1
@@ -932,22 +963,23 @@ WindowManager:
         font_size: '17sp'
         text: 'Контактные данные'
         size_hint: None, None
-        pos_hint: {'x':0.4,'y':0.08}
+        pos_hint: {'center_x':0.5,'y':0.08}
     Label:
         id: ad_name
         color: 0,0,0,1
         font_size: '17sp'
         text: root.name
         size_hint: None, None
-        pos_hint: {'x':0.3,'y':0.05}
+        pos_hint: {'x':0.32,'y':0.05}
     Label:
         id: ad_phone
         color: 0,0,0,1
         font_size: '17sp'
         text: 'Телефон'
         size_hint: None, None
-        pos_hint: {'x':0.49,'y':0.05}
+        pos_hint: {'x':0.52,'y':0.05}
     MDFillRoundFlatIconButton:
+        id: btn_com
         icon: "comment-outline"
         text: "Открыть комментарии"
         theme_text_color: "Custom"
@@ -957,8 +989,19 @@ WindowManager:
         md_bg_color: 0.34,0.71,0.98,1
         font_size: '17sp'
         user_font_size: dp(36)
-        pos_hint: {'x':0.28,'y':0.03}
-        on_press: app.root.current = 'comment'
+        pos_hint: {'center_x':0.5,'y':0.03}
+        on_press:
+            app.root.current = 'comment'
+    RoundedButton:
+        id: btn_change
+        pos_hint: {'center_x': 0.5, 'center_y': 0.01}
+        size_hint: 0.96, 0.02
+        font_size: '20sp'
+        color: 0,0,0,1
+        text: 'Добавить'
+        opacity: 0
+        on_press:
+            root.change()
 <Comment_card>:
     size_hint_y: None
     height: 100
@@ -966,28 +1009,26 @@ WindowManager:
     width: 500
     orientation: 'vertical'
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    Label:
-        id: user
-        color: 0,0,0,1
-        font_size: '15sp'
-        size_hint: 1, 0.5
-        text_size: self.width, self.height
-        halign: 'right'
-        text: 'Мария'
-    Label:
-        id: text_card
-        color: 0,0,0,1
-        font_size: '15sp'
-        size_hint: 1, None
-        text_size: self.width, None
-        halign: 'center'
-    Label:
-        id: date_card
-        color: 0,0,0,1
-        font_size: '15sp'
-        size_hint: 1, None
-        text_size: self.width, None
-        halign: 'center'
+    FloatLayout:
+        size_hint: 1,1
+        Label:
+            id: user
+            color: 0,0,0,1
+            font_size: '15sp'
+            pos_hint: {'center_x': 0.9, 'center_y': 0.9}
+            text: 'Мария'
+        Label:
+            id: text_card
+            color: 0,0,0,1
+            font_size: '15sp'
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            text: 'Мария'
+        Label:
+            id: date_card
+            color: 0,0,0,1
+            font_size: '15sp'
+            pos_hint: {'center_x': 0.6, 'center_y': 0.9}
+            text: 'Мария'
 <Comment_Screen>:
     on_enter: root.download_data()
     FloatLayout:
@@ -1031,12 +1072,6 @@ WindowManager:
                 id: scroll
                 size_hint_y: None
                 height: 700
-                GridLayout:
-                    cols: 1
-                    size_hint: 0.65, 0.95
-                    id: comment_container
-                    pos_hint: {'center_x': 0.5, 'y': 0.05}
-                    spacing: dp(10)
     FloatLayout:
         size_hint: 1, 0.05
         pos_hint: {'center_x': 0.5, 'y': 0}
@@ -1046,6 +1081,7 @@ WindowManager:
             size_hint: 0.85, 0.8
             pos_hint: {'center_x': 0.45, 'center_y': 0.5}
         MDIconButton:
+            id: btn
             icon: 'arrow-right'
             icon_size: dp(22)
             pos_hint: {'center_x': 0.95, 'center_y': 0.5}
@@ -1125,12 +1161,6 @@ WindowManager:
                 id: scroll
                 size_hint_y: None
                 height: 700
-                GridLayout:
-                    cols: 1
-                    size_hint: 0.65, 0.94
-                    id: review_container
-                    pos_hint: {'center_x': 0.5, 'y': 0.05}
-                    spacing: dp(10)
     FloatLayout:
         size_hint: 1, 0.05
         pos_hint: {'center_x': 0.5, 'y': 0}
@@ -1140,6 +1170,7 @@ WindowManager:
             size_hint: 0.85, 0.8
             pos_hint: {'center_x': 0.45, 'center_y': 0.5}
         MDIconButton:
+            id: btn
             icon: 'arrow-right'
             icon_size: dp(22)
             pos_hint: {'center_x': 0.95, 'center_y': 0.5}
@@ -1182,6 +1213,7 @@ WindowManager:
             id: ad_container
             size_hint_y: None
             height: 1000
+            
 
 <Service_card>:
     orientation: 'vertical'
@@ -1205,9 +1237,26 @@ WindowManager:
             source: 'Image\\service_card.png'
         BoxLayout:
             orientation: 'vertical'
-            size_hint: 1,0.7
-            pos_hint: {'center_x': .2, 'center_y': .54}
+            size_hint: 1,0.9
+            pos_hint: {'center_x': .2, 'center_y': .37}
             spacing: dp(10)
+            FloatLayout:
+                size_hint: 1,0.1
+                Label:
+                    id: date
+                    color: 0,0,0,1
+                    font_size: '15sp'
+                    pos_hint: {'center_x': 0.1, 'y': 0}
+                    text: 'Дата'
+                    opacity: 0
+                MDIconButton:
+                    id: btn_close
+                    icon: 'window-close'
+                    ripple_scale: 0.1
+                    user_font_size: sp(15)
+                    pos_hint: {'center_x': 0.9, 'y': 0}
+                    opacity: 0
+                    on_press: root.delete_service(self)
             Label:
                 id: name_service_card
                 color: 0,0,0,1
@@ -1235,7 +1284,7 @@ WindowManager:
                 color: 0,0,0,1
                 font_size: '15sp'
                 text: 'Дата'
-                disabled: False
+                disabled: True
     BoxLayout:
         orientation: 'vertical'
         size_hint: 1,0.2
@@ -1491,7 +1540,17 @@ WindowManager:
                 font_size: '20sp'
                 color: 0,0,0,1
                 text: 'Применить'
-                on_release: root.apply_filter() 
+                on_release: root.apply_filter()
+            RoundedButton:
+                id: btn_reset
+                pos_hint: {'x': 0.02, 'y': 0.1}
+                size_hint: 0.96, 0.05
+                font_size: '20sp'
+                color: 0,0,0,1
+                text: 'Сбросить'
+                on_release: root.reset_filter()
+                opacity: 0
+                disabled: True 
 <Service_List_Screen>:
     FloatLayout:
         size_hint: 1,0.05
@@ -1517,16 +1576,21 @@ WindowManager:
                 app.root.transition.direction = "left"
     BoxLayout:
         orientation: "vertical"
-        size_hint: 1,0.95
+        size_hint: 1,0.88
+        pos_hint: {'x': 0, 'y': 0.07}
+
         ScrollView:
-            id: container_service
             do_scroll_x: False
             do_scroll_y: True
             bar_color: [0, 0, 0, 1]
+            MDBoxLayout:
+                id: container_service
+                orientation: "vertical"
+                adaptive_height: True
+                spacing: dp(25)
     NavigationBar:
         size_hint: 1,0.07
         pos_hint: {'x': 0, 'y': 0}
-        #elevation: 20
         md_bg_color: 1,1,1,1
         MDFloatLayout:
             canvas:
@@ -1547,8 +1611,8 @@ WindowManager:
                 on_release:
                     #app.root.transition = NoTransition()
                     app.change_color(self)
-                    app.root.current = 'main'
                     app.root.transition.direction = "right"
+                    app.root.current = 'main'
             MDIconButton:
                 id: nav_icon2
                 icon: 'clipboard-check-outline'
@@ -1648,11 +1712,11 @@ WindowManager:
                 pos_hint: {'center_x': 0.205, 'center_y': 0.88}
                 color: 0,0,0,1
                 font_size: '18sp'
-                text:'Фамилия/Name'
+                text:'Дата'
                 opacity: 0
             Label:
                 id: address_service
-                pos_hint: {'center_x': 0.15, 'center_y': 0.86}
+                pos_hint: {'center_x': 0.3, 'center_y': 0.86}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Адрес'
@@ -1663,19 +1727,25 @@ WindowManager:
                 font_size: '18sp'
                 text:'Вид объявления'
             Label:
+                id: type_price
+                pos_hint: {'center_x': 0.245, 'center_y': 0.8}
+                color: 0,0,0,1
+                font_size: '18sp'
+                text:'Стоимость за сутки:'
+            Label:
                 id: price_service
-                pos_hint: {'center_x': 0.18, 'center_y': 0.8}
+                pos_hint: {'center_x': 0.45, 'center_y': 0.8}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Стоимость'
             Label:
-                pos_hint: {'center_x': 0.1, 'center_y': 0.78}
+                pos_hint: {'center_x': 0.245, 'center_y': 0.78}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'С кем работаю:'
             Label:
                 id: kind_pet_serv
-                pos_hint: {'center_x': 0.42, 'center_y': 0.78}
+                pos_hint: {'center_x': 0.45, 'center_y': 0.78}
                 size_hint: 0.4, None
                 text_size: self.width, None
                 color: 0,0,0,1
@@ -1683,14 +1753,14 @@ WindowManager:
                 text:'со всеми'
             Label:
                 id: size_dog1_serv
-                pos_hint: {'center_x': 0.1, 'center_y': 0.75}
+                pos_hint: {'center_x': 0.245, 'center_y': 0.75}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Размер собаки:'
                 disabled: False
             Label:
                 id: size_dog2_serv
-                pos_hint: {'center_x': 0.42, 'center_y': 0.75}
+                pos_hint: {'center_x': 0.45, 'center_y': 0.75}
                 color: 0,0,0,1
                 font_size: '18sp'
                 size_hint: 0.4, None
@@ -1698,20 +1768,20 @@ WindowManager:
                 text:'маленькие и средние породы'
                 disabled: False
             Label:
-                pos_hint: {'center_x': 0.06, 'center_y': 0.7}
+                pos_hint: {'center_x': 0.245, 'center_y': 0.7}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Возраст:'
             Label:
                 id: age_serv
-                pos_hint: {'center_x': 0.42, 'center_y': 0.7}
+                pos_hint: {'center_x': 0.45, 'center_y': 0.7}
                 color: 0,0,0,1
                 size_hint: 0.4, None
                 text_size: self.width, None
                 font_size: '18sp'
                 text:'любой'
             Label:
-                pos_hint: {'center_x': 0.18, 'center_y': 0.68}
+                pos_hint: {'center_x': 0.2, 'center_y': 0.68}
                 color: 0,0,0,1
                 font_size: '18sp'
                 text:'Специальные возможности:'
@@ -1738,20 +1808,20 @@ WindowManager:
                 disabled: False
             Label:
                 id: education
-                pos_hint: {'center_x': 0.24, 'center_y': 0.6}
+                pos_hint: {'center_x': 0.245, 'center_y': 0.6}
                 color: 0,0,0,1
                 font_size: '17sp'
                 text:'- Профильное образование'
                 disabled: False
             Label:
                 id: name_education
-                pos_hint: {'center_x': 0.4, 'center_y': 0.6}
+                pos_hint: {'center_x': 0.45, 'center_y': 0.6}
                 color: 0,0,0,1
                 font_size: '17sp'
                 text:'Ветеринар'
                 disabled: False
             Label:
-                pos_hint: {'center_x': 0.135, 'center_y': 0.58}
+                pos_hint: {'center_x': 0.245, 'center_y': 0.58}
                 color: 0,0,0,1
                 font_size: '17sp'
                 text:'Контактный телефон:'
@@ -1764,7 +1834,7 @@ WindowManager:
                 font_size: '18sp'
                 text:'89209048314'
             Label:
-                pos_hint: {'center_x': 0.1, 'center_y': 0.56}
+                pos_hint: {'center_x': 0.245, 'center_y': 0.56}
                 color: 0,0,0,1
                 font_size: '17sp'
                 text:'Комментарий'
@@ -1777,8 +1847,9 @@ WindowManager:
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 text:'Доброго времени суток. Помогите пожалуйста найти домашнего питомца. Был утерян в Белоозёрском Воскресенский район. В районе церкви. Убежал. Кобель американского стафордширского терьера. Зовут Дин. Ошейник красного цвета и адресник с номером телефона хозяина. Пожалуйста кто-то что-то видел или слышал сообщите. Будем благодарны за любую информацию'
             MDFillRoundFlatIconButton:
+                id: btn_rev
                 icon: "comment-outline"
-                text: "Открыть комментарии"
+                text: "Открыть отзывы"
                 theme_text_color: "Custom"
                 text_color: 1, 1, 1, 1
                 theme_icon_color: "Custom"
@@ -1786,23 +1857,9 @@ WindowManager:
                 md_bg_color: 0.34,0.71,0.98,1
                 font_size: '17sp'
                 user_font_size: dp(36)
-                pos_hint: {'x':0.28,'y':0.03}
-                on_press: app.root.current = 'review'
-            # MDTabs:
-            #     tab_hint_x: True
-            #     allow_stretch: True
-            #     background_color: 1,1,1,1
-            #     text_color_normal: 0,0,0,1
-            #     text_color_active: 0,0,0,1
-            #     indicator_color: 0.34,0.71,0.98,1
-            #     lock_swiping: True
-            #     size_hint_x: 1
-            #     pos_hint: {'center_x': 0.5, 'center_y': 0.2}
-            #     About_me:
-            #         title: 'О себе'
-            #     Reviews:
-            #         id: review
-            #         title: 'Отзывы'    
+                pos_hint: {'center_x':0.5,'y':0.03}
+                on_press:
+                    app.root.current = 'review'  
 
 <Profile_Screen>:
     on_enter: root.download_data()
@@ -1823,13 +1880,13 @@ WindowManager:
             pos_hint: {'x':0.4,'y':0.65}
         Label:
             id: name_profile
-            pos_hint: {'x':-0.07,'y':0.15}
+            pos_hint: {'x':-0.08,'y':0.15}
             color: 0,0,0,1
             font_size: '25sp'
             text:'Артём'
         Label:
             id: lname_profile
-            pos_hint: {'x':0.07,'y':0.15}
+            pos_hint: {'x':0.08,'y':0.15}
             color: 0,0,0,1
             font_size: '25sp'
             text:'Хорев'
@@ -1911,6 +1968,8 @@ WindowManager:
             theme_icon_color: "Custom"
             icon_color: 0, 0, 0, 1
             pos_hint: {'x':0.65,'y':0.01}
+            on_press:
+                app.root.current = 'start'
             #pos_hint: {'x':0.65,'y':0.01}
     NavigationBar:
         size_hint: 1,0.07
@@ -1933,7 +1992,6 @@ WindowManager:
                 theme_text_color: 'Custom'
                 text_color: 0.34,0.71,0.98,1
                 on_release:
-                    #app.root.transition = NoTransition()
                     app.change_color(self)
                     app.root.current = 'main'
                     app.root.transition.direction = "right"
@@ -2097,9 +2155,9 @@ WindowManager:
             icon: 'arrow-left'
             pos_hint: {'x': 0, 'y': -0.1}
             user_font_size: dp(24)
-            on_release:             
-                app.root.current = "profile"
-                app.root.transition.direction = "right"
+            on_press:
+                app.root.transition.direction = "right"             
+                app.root.current = 'profile'  
     BoxLayout:
         orientation: "vertical"
         size_hint: 1,0.95
@@ -2111,7 +2169,7 @@ WindowManager:
                 id: container_lost
                 orientation: "vertical"
                 adaptive_height: True
-                spacing:dp(25)
+                spacing: dp(25)
 <My_Service_Screen>:  
     FloatLayout:
         size_hint: 1,0.05
@@ -2145,7 +2203,7 @@ WindowManager:
                 id: container_service
                 orientation: "vertical"
                 adaptive_height: True
-                spacing:dp(25)     
+                spacing: dp(25)   
 <Personal_Data>:
     on_enter: root.download_data()
     FloatLayout:
@@ -2163,7 +2221,7 @@ WindowManager:
             icon: 'Image\\def_img_profile.png'
             user_font_size: '110sp'
             #size_hint: 0.2,0.2
-            pos_hint: {'x':0.4,'y':0.65}
+            pos_hint: {'center_x':0.5,'y':0.65}
             on_press: root.download_image()
         BoxLayout:
             orientation: 'vertical'
@@ -2203,7 +2261,7 @@ WindowManager:
             text: 'Назад'
             on_release:
                 app.root.transition.direction = "right" 
-                app.root.current = "profile"
+                app.root.current = 'profile'
         RoundedButton:
             pos_hint: {'x': 0.68, 'y': 0.16}
             size_hint: 0.28, 0.05
@@ -2211,7 +2269,7 @@ WindowManager:
             text: root.change
             on_release:
                 app.root.transition.direction = "left" 
-                app.root.current = "change_password"
+                app.root.current = 'change_password'
         RoundedButton:
             pos_hint: {'x': 0.22, 'y': 0.02}
             size_hint: 0.6, 0.05
@@ -2221,7 +2279,7 @@ WindowManager:
             on_release:
                 root.save_change()
                 app.root.transition.direction = "right" 
-                app.root.current = "profile"
+                app.root.current = 'profile'
 <Add_see_card>:
     size_hint: 0.7,0.05
     BoxLayout:
@@ -2641,6 +2699,7 @@ WindowManager:
                 pos_hint: {'x': 0.08, 'y': 0.47}
             CheckBox:
                 id: kind_pet_cat
+                group: 'kind'
                 size_hint: None, None
                 size: "60dp", "60dp"
                 pos_hint: {'x': 0.05, 'y': 0.93}
@@ -2652,6 +2711,7 @@ WindowManager:
                 pos_hint: {'x': 0.22, 'y': 0.445}
             CheckBox:
                 id: kind_pet_dog
+                group: 'kind'
                 size_hint: None, None
                 size: "60dp", "60dp"
                 pos_hint: {'x': 0.05, 'y': 0.88}
@@ -3068,7 +3128,7 @@ WindowManager:
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
-                text:'Стоимость'
+                text:'Стоимость за сутки'
                 pos_hint: {'center_x': 0.13, 'center_y': 0.22}
             MDTextField:
                 id: price
@@ -3345,7 +3405,7 @@ WindowManager:
             Label:
                 color: 0,0,0,1
                 font_size: '18sp'
-                text:'Стоимость'
+                text:'Стоимость за сутки'
                 pos_hint: {'center_x': 0.12, 'center_y': 0.32}
             MDTextField:
                 id: price
@@ -3501,7 +3561,30 @@ WindowManager:
                 color: 0,0,0,1
                 text: 'Применить'
                 on_release: root.add()
+<Notification_Card>:
+    size_hint_y: None
+    height: 100
+    size_hint_x: None
+    width: 400
+    orientation: 'vertical'
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    FloatLayout:
+        size_hint: 1,1
+        Label:
+            id: textt
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'Появился новый комментарий'
+        Label:
+            id: date
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'дата'
+            opacity: 0
 <Notification_Screen>:
+    on_enter: root.notification()
     FloatLayout:
         size_hint: 1,0.05
         pos_hint: {'x':0,'y':0.95}
@@ -3516,6 +3599,26 @@ WindowManager:
             color: 0,0,0,1
             font_size: '18sp'
             text:'Уведомления'
+        Label:
+            id: count_com
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'0'
+            opacity: 0
+        Label:
+            id: count_rev
+            pos_hint: {'x':0,'y':0}
+            color: 0,0,0,1
+            font_size: '18sp'
+            text:'0'
+            opacity: 0
+    GridLayout:
+        id: container
+        cols: 1
+        size_hint: 0.7,0.88
+        pos_hint: {'center_x':0.6,'y':0.07}
+        spacing:dp(10)
     NavigationBar:
         size_hint: 1,0.07
         pos_hint: {'x': 0, 'y': 0}
